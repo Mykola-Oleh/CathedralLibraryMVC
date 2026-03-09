@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="CathedralLibraryDomain/CathedralLibraryDomain.csproj" />
+  <Project Path="CathedralLibraryInfrastructure/CathedralLibraryInfrastructure.csproj" />
+</Solution>
