@@ -4,7 +4,8 @@ using System.Text;
 
 namespace CathedralLibraryDomain.Model
 {
-    internal class Entity
+    public abstract class Entity<TId>
     {
+        public virtual TId Id { get; set; } = default!;
     }
 }

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CathedralLibraryDomain.Model;
 
-public partial class Copy
+public partial class Copy: Entity<int>
 {
     public int PublicationId { get; set; }
 

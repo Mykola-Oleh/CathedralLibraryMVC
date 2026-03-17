@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CathedralLibraryDomain.Model;
 
-public partial class Requeststatus
+public partial class Requeststatus : Entity<int>
 {
     public int StatusId { get; set; }
 

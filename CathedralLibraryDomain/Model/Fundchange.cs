@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CathedralLibraryDomain.Model;
 
-public partial class Fundchange
+public partial class Fundchange : Entity<int>
 {
     public int ChangeId { get; set; }
 
