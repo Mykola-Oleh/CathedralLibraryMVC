@@ -3,10 +3,8 @@ using System.Collections.Generic;
 
 namespace CathedralLibraryDomain.Model;
 
-public partial class Copystatus : Entity<int>
+public partial class Copystatus : Entity<Guid>
 {
-    public int StatusId { get; set; }
-
     public string StatusName { get; set; } = null!;
 
     public virtual ICollection<Copy> Copies { get; set; } = new List<Copy>();

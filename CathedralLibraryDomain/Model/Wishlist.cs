@@ -3,13 +3,11 @@ using System.Collections.Generic;
 
 namespace CathedralLibraryDomain.Model;
 
-public partial class Wishlist : Entity<int>
+public partial class Wishlist : Entity<Guid>
 {
-    public int ReaderId { get; set; }
+    public Guid ReaderId { get; set; }
+    public Guid PublicationId { get; set; }
 
-    public int? PublicationId { get; set; }
-
-    public virtual Publication? Publication { get; set; }
-
+    public virtual Publication Publication { get; set; } = null!;
     public virtual Reader Reader { get; set; } = null!;
 }

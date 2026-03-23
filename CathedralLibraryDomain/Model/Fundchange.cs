@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 namespace CathedralLibraryDomain.Model;
 
-public partial class Fundchange : Entity<int>
+public partial class Fundchange : Entity<Guid>
 {
-    public int ChangeId { get; set; }
 
     public int PublicationId { get; set; }
 
