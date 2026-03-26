@@ -1,0 +1,41 @@
+﻿@model IEnumerable<CathedralLibraryDomain.Model.Copy>
+
+@{
+    ViewData["Title"] = "Примірник";
+}
+
+<h1>Примірник</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Publication)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Publication.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Status.StatusName)
+            </td>
+           <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.PublicationId, copyNum = item.Copynumber }) |
+                @Html.ActionLink("Details", "Details", new { id = item.PublicationId, copyNum = item.Copynumber }) |
+                @Html.ActionLink("Delete", "Delete", new { id = item.PublicationId, copyNum = item.Copynumber })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

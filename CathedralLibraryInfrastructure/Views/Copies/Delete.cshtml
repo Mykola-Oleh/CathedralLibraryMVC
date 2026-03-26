@@ -1,0 +1,31 @@
+﻿@model CathedralLibraryDomain.Model.Copy
+
+@{
+    ViewData["Title"] = "Видалення примірника";
+}
+
+<h1>Delete</h1>
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <h4>Copy</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Publication)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Publication.Title)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Copynumber)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Copynumber)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Status)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Status.StatusName)</dd>
+    </dl>
+
+    <form asp-action="Delete">
+        @* Передаємо обидва ключі для видалення *@
+        <input type="hidden" asp-for="PublicationId" />
+        <input type="hidden" asp-for="Copynumber" />
+
+        <input type="submit" value="Delete" class="btn btn-danger" /> |
+        <a asp-action="Index" asp-route-id="@Model.PublicationId">Back to List</a>
+    </form>
+</div>

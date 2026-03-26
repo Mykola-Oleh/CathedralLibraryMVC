@@ -20,9 +20,37 @@ namespace CathedralLibraryInfrastructure.Controllers
         }
 
         // GET: Publications
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sortOrder)
         {
-            return View(await _context.Publications.ToListAsync());
+            ViewBag.TitleSortParm = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
+            ViewBag.YearSortParm = sortOrder == "Year" ? "year_desc" : "Year";
+            ViewBag.TypeSortParm = sortOrder == "Type" ? "type_desc" : "Type";
+
+            var publications = from p in _context.Publications
+                               select p;
+            switch (sortOrder)
+            {
+                case "title_desc":
+                    publications = publications.OrderByDescending(p => p.Title);
+                    break;
+                case "Year":
+                    publications = publications.OrderBy(p => p.Year);
+                    break;
+                case "year_desc":
+                    publications = publications.OrderByDescending(p => p.Year);
+                    break;
+                case "Type":
+                    publications = publications.OrderBy(p => p.PublicationType);
+                    break;
+                case "type_desc":
+                    publications = publications.OrderByDescending(p => p.PublicationType);
+                    break;
+                default:
+                    publications = publications.OrderBy(p => p.Title);
+                    break;
+            }
+
+            return View(await publications.AsNoTracking().ToListAsync());
         }
 
         // GET: Publications/Details/5
@@ -43,18 +71,32 @@ namespace CathedralLibraryInfrastructure.Controllers
             return View(publication);
         }
 
+        // Метод для генерації списку років
+        private IEnumerable<SelectListItem> GetYearsList(int? selectedYear = null)
+        {
+            int currentYear = DateTime.Now.Year;
+            var years = Enumerable.Range(1900, currentYear - 1900 + 1)
+                                  .OrderByDescending(y => y)
+                                  .Select(y => new SelectListItem
+                                  {
+                                      Value = y.ToString(),
+                                      Text = y.ToString(),
+                                      Selected = (selectedYear.HasValue && y == selectedYear.Value)
+                                  });
+            return years;
+        }
+
         // GET: Publications/Create
         public IActionResult Create()
         {
+            ViewBag.Years = GetYearsList(DateTime.Now.Year);
             return View();
         }
 
         // POST: Publications/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Annotation,PublicationType,Year,Id")] Publication publication)
+        public async Task<IActionResult> Create([Bind("Id,Title,Annotation,PublicationType,Year")] Publication publication)
         {
             if (ModelState.IsValid)
             {
@@ -63,6 +105,7 @@ namespace CathedralLibraryInfrastructure.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Years = GetYearsList(DateTime.Now.Year);
             return View(publication);
         }
 
@@ -79,15 +122,14 @@ namespace CathedralLibraryInfrastructure.Controllers
             {
                 return NotFound();
             }
+            ViewBag.Years = GetYearsList(publication.Year);
             return View(publication);
         }
 
         // POST: Publications/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Title,Annotation,PublicationType,Year,Id")] Publication publication)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,Annotation,PublicationType,Year")] Publication publication)
         {
             if (id != publication.Id)
             {
@@ -114,7 +156,14 @@ namespace CathedralLibraryInfrastructure.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
+            ViewBag.Years = GetYearsList(publication.Year);
             return View(publication);
+        }
+
+        public async Task<IActionResult> Copies(Guid? id)
+        {
+            if (id == null) return NotFound();
+            return RedirectToAction("Index", "Copies", new { id = id });
         }
 
         // GET: Publications/Delete/5

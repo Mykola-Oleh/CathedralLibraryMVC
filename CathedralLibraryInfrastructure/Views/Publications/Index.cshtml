@@ -1,10 +1,10 @@
 ﻿@model IEnumerable<CathedralLibraryDomain.Model.Publication>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Видання";
 }
 
-<h1>Index</h1>
+<h1>Видання</h1>
 
 <p>
     <a asp-action="Create">Create New</a>
@@ -13,16 +13,22 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.Title)
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.TitleSortParm">
+                    @Html.DisplayNameFor(model => model.Title)
+                </a>
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.Annotation)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.PublicationType)
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.TypeSortParm">
+                    @Html.DisplayNameFor(model => model.PublicationType)
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Year)
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.YearSortParm">
+                    @Html.DisplayNameFor(model => model.Year)
+                </a>
             </th>
             <th></th>
         </tr>
@@ -45,7 +51,8 @@
             <td>
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a> |
+                <a asp-action="Copies" asp-route-id="@item.Id">Copies</a>
             </td>
         </tr>
 }

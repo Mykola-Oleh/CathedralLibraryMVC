@@ -1,0 +1,26 @@
+﻿@model CathedralLibraryDomain.Model.Copy
+
+@{
+    ViewData["Title"] = "Деталі";
+}
+
+<h1>Details</h1>
+
+<div>
+    <h4>Copy</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Publication)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Publication.Title)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Copynumber)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Copynumber)</dd>
+
+        <dt class="col-sm-2">@Html.DisplayNameFor(model => model.Status)</dt>
+        <dd class="col-sm-10">@Html.DisplayFor(model => model.Status.StatusName)</dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.PublicationId, copyNum = Model.Copynumber }, new { @class = "btn btn-primary" }) |
+    <a asp-action="Index" asp-route-id="@Model.PublicationId">Back to List</a>
+</div>
