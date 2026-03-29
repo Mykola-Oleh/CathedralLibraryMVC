@@ -76,7 +76,6 @@ namespace CathedralLibraryInfrastructure.Controllers
                     }
                     else
                     {
-                        // Якщо ReturnUrl порожній, ОБОВ'ЯЗКОВО повертаємо на головну
                         return RedirectToAction("Index", "Home");
                     }
                 }
