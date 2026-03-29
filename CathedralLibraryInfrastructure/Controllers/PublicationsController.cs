@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CathedralLibraryDomain.Model;
 using CathedralLibraryInfrastructure;
+using Microsoft.AspNetCore.Authorization;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {
@@ -20,14 +21,16 @@ namespace CathedralLibraryInfrastructure.Controllers
         }
 
         // GET: Publications
+        [Authorize]
         public async Task<IActionResult> Index(string sortOrder)
         {
             ViewBag.TitleSortParm = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
             ViewBag.YearSortParm = sortOrder == "Year" ? "year_desc" : "Year";
             ViewBag.TypeSortParm = sortOrder == "Type" ? "type_desc" : "Type";
 
-            var publications = from p in _context.Publications
-                               select p;
+            var publications = _context.Publications
+                .Include(p => p.PublicationType)
+                .AsQueryable();
             switch (sortOrder)
             {
                 case "title_desc":
@@ -40,10 +43,10 @@ namespace CathedralLibraryInfrastructure.Controllers
                     publications = publications.OrderByDescending(p => p.Year);
                     break;
                 case "Type":
-                    publications = publications.OrderBy(p => p.PublicationType);
+                    publications = publications.OrderBy(p => p.PublicationTypeId);
                     break;
                 case "type_desc":
-                    publications = publications.OrderByDescending(p => p.PublicationType);
+                    publications = publications.OrderByDescending(p => p.PublicationTypeId);
                     break;
                 default:
                     publications = publications.OrderBy(p => p.Title);
@@ -62,6 +65,7 @@ namespace CathedralLibraryInfrastructure.Controllers
             }
 
             var publication = await _context.Publications
+                .Include(p => p.PublicationType)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (publication == null)
             {
@@ -87,16 +91,19 @@ namespace CathedralLibraryInfrastructure.Controllers
         }
 
         // GET: Publications/Create
+        [Authorize(Roles = "admin")]
         public IActionResult Create()
         {
             ViewBag.Years = GetYearsList(DateTime.Now.Year);
+            ViewData["PublicationTypeId"] = new SelectList(_context.PublicationType, "Id", "Name");
             return View();
         }
 
         // POST: Publications/Create
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Annotation,PublicationType,Year")] Publication publication)
+        public async Task<IActionResult> Create([Bind("Id,Title,Annotation,PublicationTypeId,Year")] Publication publication)
         {
             if (ModelState.IsValid)
             {
@@ -105,11 +112,13 @@ namespace CathedralLibraryInfrastructure.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+            ViewData["PublicationTypeId"] = new SelectList(_context.PublicationType, "Id", "Name");
             ViewBag.Years = GetYearsList(DateTime.Now.Year);
             return View(publication);
         }
 
         // GET: Publications/Edit/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(Guid? id)
         {
             if (id == null)
@@ -123,13 +132,15 @@ namespace CathedralLibraryInfrastructure.Controllers
                 return NotFound();
             }
             ViewBag.Years = GetYearsList(publication.Year);
+            ViewData["PublicationTypeId"] = new SelectList(_context.PublicationType, "Id", "Name");
             return View(publication);
         }
 
         // POST: Publications/Edit/5
+        [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,Annotation,PublicationType,Year")] Publication publication)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,Annotation,PublicationTypeId,Year")] Publication publication)
         {
             if (id != publication.Id)
             {
@@ -157,9 +168,10 @@ namespace CathedralLibraryInfrastructure.Controllers
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Years = GetYearsList(publication.Year);
+            ViewData["PublicationTypeId"] = new SelectList(_context.PublicationType, "Id", "Name");
             return View(publication);
         }
-
+        [Authorize]
         public async Task<IActionResult> Copies(Guid? id)
         {
             if (id == null) return NotFound();
@@ -167,6 +179,7 @@ namespace CathedralLibraryInfrastructure.Controllers
         }
 
         // GET: Publications/Delete/5
+        [Authorize(Roles = "admin")]
         public async Task<IActionResult> Delete(Guid? id)
         {
             if (id == null)
@@ -175,6 +188,7 @@ namespace CathedralLibraryInfrastructure.Controllers
             }
 
             var publication = await _context.Publications
+                .Include(p => p.PublicationType)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (publication == null)
             {
@@ -185,6 +199,7 @@ namespace CathedralLibraryInfrastructure.Controllers
         }
 
         // POST: Publications/Delete/5
+        [Authorize(Roles = "admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)

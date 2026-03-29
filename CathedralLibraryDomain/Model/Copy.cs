@@ -13,7 +13,7 @@ public partial class Copy
     [Range(1, 9999, ErrorMessage = "Поле 'Номер копії' має бути додатним числом (більше 0) і меншим за 10000")]
     public int Copynumber { get; set; }
     [Display(Name = "Статус")]
-    public Guid StatusId { get; set; }
+    public int StatusId { get; set; }
 
     public virtual Publication Publication { get; set; } = null!;
     public virtual Copystatus Status { get; set; } = null!;

@@ -20,6 +20,8 @@ public partial class DbCathedralLibraryContext : DbContext
     public virtual DbSet<Requeststatus> Requeststatuses { get; set; }
     public virtual DbSet<Wishlist> Wishlists { get; set; }
 
+    public virtual DbSet<PublicationType> PublicationType { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
@@ -33,7 +35,10 @@ public partial class DbCathedralLibraryContext : DbContext
 
         modelBuilder.Entity<Publication>(entity =>
         {
-            entity.Property(e => e.Annotation).HasColumnName("annotation");
+            entity.HasOne(d => d.PublicationType)
+                  .WithMany(p => p.Publications)
+                  .HasForeignKey(d => d.PublicationTypeId)
+                  .OnDelete(DeleteBehavior.ClientSetNull);
         });
 
         modelBuilder.Entity<Copy>(entity =>

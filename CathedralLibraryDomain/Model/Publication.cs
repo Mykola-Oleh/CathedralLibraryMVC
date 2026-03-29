@@ -19,8 +19,10 @@ public partial class Publication : Entity<Guid>
 
     [Display(Name = "Тип видання")]
     [Required(ErrorMessage = "Поле 'Тип видання' не повинно бути порожнім")]
-    [StringLength(32, ErrorMessage = "Поле 'Назва статусу' не може перевищувати 32 символів")]
-    public string PublicationType { get; set; } = null!;
+    public int PublicationTypeId { get; set; }
+
+    [Display(Name = "Тип публікації")]
+    public virtual PublicationType? PublicationType { get; set; } = null!;
 
     [Display(Name = "Рік")]
     public short Year { get; set; }

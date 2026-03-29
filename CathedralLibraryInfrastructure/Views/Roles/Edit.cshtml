@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model CathedralLibraryInfrastructure.ViewModels.ChangeRoleViewModel
+
+@{
+    ViewData["Title"] = "Редагування ролей";
+}
+
+<h2>Зміна ролей для користувача @Model.UserEmail</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" name="userId" value="@Model.UserId" />
+    <div class="form-group">
+        @foreach (IdentityRole role in Model.AllRoles)
+        {
+            <div class="form-check my-2">
+                <input class="form-check-input" type="checkbox" name="roles" value="@role.Name"
+                       @(Model.UserRoles.Contains(role.Name) ? "checked=\"checked\"" : "") />
+                <label class="form-check-label">
+                    @role.Name
+                </label>
+            </div>
+        }
+    </div>
+    <hr />
+    <button type="submit" class="btn btn-primary">Зберегти зміни</button>
+    <a asp-action="UserList" class="btn btn-outline-secondary">Скасувати</a>
+</form>

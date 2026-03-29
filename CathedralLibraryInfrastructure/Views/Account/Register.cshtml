@@ -1,0 +1,52 @@
+﻿@model CathedralLibraryInfrastructure.ViewModels.RegisterViewModel
+@{
+    ViewData["Title"] = "Реєстрація";
+}
+
+<h2>Реєстрація нового користувача</h2>
+
+<form method="post" asp-controller="Account" asp-action="Register">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="First_name" class="control-label"></label><br />
+        <input asp-for="First_name" class="form-control" /> <span asp-validation-for="First_name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Last_name" class="control-label"></label><br />
+        <input asp-for="Last_name" class="form-control" /> <span asp-validation-for="Last_name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="Email" class="control-label"></label><br />
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Year" class="control-label"></label>
+        <select asp-for="Year" class="form-control" asp-items="ViewBag.Years">
+        </select>
+        <span asp-validation-for="Year" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Password" class="control-label"></label><br />
+        <input asp-for="Password" class="form-control" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PasswordConfirm" class="control-label"></label><br />
+        <input asp-for="PasswordConfirm" class="form-control" />
+        <span asp-validation-for="PasswordConfirm" class="text-danger"></span>
+    </div>
+
+    <div class="mt-3">
+        <input type="submit" value="Зареєструватися" class="btn btn-primary" />
+    </div>
+</form>
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

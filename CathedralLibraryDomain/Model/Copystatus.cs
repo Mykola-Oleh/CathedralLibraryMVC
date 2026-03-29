@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace CathedralLibraryDomain.Model;
 
 [Table("copystatus")]
-public partial class Copystatus : Entity<Guid>
+public partial class Copystatus : Entity<int>
 {
     [Display(Name = "Назва статусу")]
     [StringLength(32, ErrorMessage = "Поле 'Назва статусу' не може перевищувати 32 символів")]

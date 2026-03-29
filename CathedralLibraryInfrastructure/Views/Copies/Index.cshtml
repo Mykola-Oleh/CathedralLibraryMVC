@@ -6,9 +6,12 @@
 
 <h1>Примірник</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
+@if (User.IsInRole("admin"))
+{
+    <p>
+        <a asp-action="Create" class="btn btn-primary">Додати новий примірник</a>
+    </p>
+}
 <table class="table">
     <thead>
         <tr>
@@ -30,10 +33,14 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Status.StatusName)
             </td>
-           <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.PublicationId, copyNum = item.Copynumber }) |
-                @Html.ActionLink("Details", "Details", new { id = item.PublicationId, copyNum = item.Copynumber }) |
+                <td>
+                    @Html.ActionLink("Details", "Details", new { id = item.PublicationId, copyNum = item.Copynumber })
+                @if (User.IsInRole("admin"))
+                {                  
+                @Html.ActionLink("Edit", "Edit", new { id = item.PublicationId, copyNum = item.Copynumber }) 
+                                <span> | </span>
                 @Html.ActionLink("Delete", "Delete", new { id = item.PublicationId, copyNum = item.Copynumber })
+                }
             </td>
         </tr>
 }
