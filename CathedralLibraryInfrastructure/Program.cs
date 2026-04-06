@@ -1,5 +1,6 @@
 using CathedralLibraryDomain.Model;
 using CathedralLibraryInfrastructure;
+using CathedralLibraryInfrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +14,8 @@ builder.Services.AddDbContext<DbCathedralLibraryContext>(options =>
 
 builder.Services.AddDbContext<IdentityContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityConnection")));
+
+builder.Services.AddScoped<IDataPortServiceFactory<Publication>, PublicationDataPortServiceFactory>();
 
 builder.Services.AddIdentity<User, IdentityRole>(options => {
     options.Password.RequireDigit = false;

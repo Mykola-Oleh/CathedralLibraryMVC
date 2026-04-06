@@ -1,0 +1,5 @@
+﻿@using (Html.BeginForm("Import", "Publications", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <input type="file" name="fileExcel" />
+    <input type="submit" value="Завантажити" />
+}

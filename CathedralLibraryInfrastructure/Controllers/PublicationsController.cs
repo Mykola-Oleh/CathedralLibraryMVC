@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using CathedralLibraryDomain.Model;
 using CathedralLibraryInfrastructure;
 using Microsoft.AspNetCore.Authorization;
+using CathedralLibraryInfrastructure.Services;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {
@@ -15,9 +16,12 @@ namespace CathedralLibraryInfrastructure.Controllers
     {
         private readonly DbCathedralLibraryContext _context;
 
-        public PublicationsController(DbCathedralLibraryContext context)
+        private readonly IDataPortServiceFactory<Publication> _factory;
+
+        public PublicationsController(DbCathedralLibraryContext context, IDataPortServiceFactory<Publication> factory)
         {
             _context = context;
+            _factory = factory;
         }
 
         // GET: Publications
@@ -217,6 +221,44 @@ namespace CathedralLibraryInfrastructure.Controllers
         private bool PublicationExists(Guid id)
         {
             return _context.Publications.Any(e => e.Id == id);
+        }
+        [HttpGet]
+        public async Task<IActionResult> Export(CancellationToken cancellationToken)
+        {
+            string contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+            var exportService = _factory.GetExportService(contentType);
+            var memoryStream = new MemoryStream();
+
+            await exportService.WriteToAsync(memoryStream, cancellationToken);
+            memoryStream.Position = 0;
+
+            return File(memoryStream, contentType, $"publications_{DateTime.Now:yyyyMMdd}.xlsx");
+        }
+        [HttpGet]
+        public IActionResult Import()
+        {
+            return View();
+        }
+        [HttpPost]
+        public async Task<IActionResult> Import(IFormFile fileExcel, CancellationToken cancellationToken)
+        {
+            try
+            {
+                if (fileExcel != null && fileExcel.Length > 0)
+                {
+                    var importService = _factory.GetImportService(fileExcel.ContentType);
+                    using (var stream = fileExcel.OpenReadStream())
+                    {
+                        await importService.ImportFromStreamAsync(stream, cancellationToken);
+                    }
+                    TempData["Success"] = "Дані успішно імпортовано!";
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Помилка при імпорті: перевірте формат файлу";
+            }
+            return RedirectToAction(nameof(Index));
         }
     }
 }
