@@ -31,4 +31,5 @@ public partial class Publication : Entity<Guid>
     public virtual ICollection<Fundchange> Fundchanges { get; set; } = new List<Fundchange>();
     public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
     public virtual ICollection<Author> Authors { get; set; } = new List<Author>();
+
 }

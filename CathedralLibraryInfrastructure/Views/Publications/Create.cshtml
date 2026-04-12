@@ -3,48 +3,50 @@
 @{
     ViewData["Title"] = "Create";
 }
-
-<h1>Create</h1>
-
-<h4>Publication</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Annotation" class="control-label"></label>
-                <input asp-for="Annotation" class="form-control" />
-                <span asp-validation-for="Annotation" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PublicationTypeId" class="control-label">Тип видання</label>
-                <select asp-for="PublicationTypeId" class="form-control" asp-items="ViewBag.PublicationTypeId">
+<div class="container mt-4">
+    <div class="card shadow-sm col-md-6 mx-auto">
+    <div class="card-header bg-warning text-white">
+        <h4>Нове видання</h4>
+    </div>
+        <div class="card-body">
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="mb-3">
+                    <label asp-for="Title" class="form-label fw-bold"></label>
+                    <input asp-for="Title" class="form-control" />
+                    <span asp-validation-for="Title" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Annotation" class="control-label"></label>
+                    <input asp-for="Annotation" class="form-control" />
+                    <span asp-validation-for="Annotation" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="PublicationTypeId" class="control-label">Тип видання</label>
+                    <select asp-for="PublicationTypeId" class="form-control" asp-items="ViewBag.PublicationTypeId">
                     <option value="">-- Оберіть тип --</option>
-                </select>
-                <span asp-validation-for="PublicationTypeId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Year" class="control-label"></label>
-                <select asp-for="Year" class="form-control" asp-items="ViewBag.Years">
-                </select>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+                    </select>
+                    <span asp-validation-for="PublicationTypeId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Year" class="control-label"></label>
+                    <select asp-for="Year" class="form-control" asp-items="ViewBag.Years">
+                    </select>
+                </div>
+            <div class="form-group mb-3">
+                    <label class="control-label">Автори</label>
+                    <select name="selectedAuthors" class="form-select shadow-sm" multiple asp-items="ViewBag.Authors"> 
+                    </select>
+                    <span class="text-muted small">Утримуйте Ctrl, щоб обрати декількох авторів</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" asp-route-tab="PublicationType" class="btn btn-secondary">⬅ Назад</a>
+                    <button type="submit" class="btn btn-success">➕ Створити</button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
-
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

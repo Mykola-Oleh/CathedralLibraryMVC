@@ -22,23 +22,19 @@ namespace CathedralLibraryInfrastructure.Controllers
         // GET: Authors
         public async Task<IActionResult> Index()
         {
-            return View(await _context.Authors.ToListAsync());
+            return View(await _context.Authors.Include(a => a.Publications).ToListAsync());
         }
 
         // GET: Authors/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var author = await _context.Authors
+                .Include(a => a.Publications)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (author == null)
-            {
-                return NotFound();
-            }
+
+            if (author == null) return NotFound();
 
             return View(author);
         }

@@ -1,49 +1,79 @@
 ﻿@model CathedralLibraryDomain.Model.Publication
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Редагування видання";
 }
 
-<h1>Edit</h1>
+<div class="container py-4">
 
-<h4>Publication</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 bg-body-tertiary">
+                <div class="card-header bg-warning bg-gradient text-dark border-0 py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-pencil-square me-2"></i>Редагувати видання
+                    </h5>
+                </div>
+                <div class="card-body py-4">
+                    <form asp-action="Edit">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small"></div>
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="Title" class="form-label small fw-bold text-uppercase text-secondary"></label>
+                                    <input asp-for="Title" class="form-control" placeholder="Назва книги..." />
+                                    <span asp-validation-for="Title" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="PublicationTypeId" class="form-label small fw-bold text-uppercase text-secondary">Тип видання</label>
+                                    <select asp-for="PublicationTypeId" class="form-select" asp-items="ViewBag.PublicationTypeId"></select>
+                                    <span asp-validation-for="PublicationTypeId" class="text-danger small"></span>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label asp-for="Year" class="form-label small fw-bold text-uppercase text-secondary">Рік видання</label>
+                                    <select asp-for="Year" class="form-select" asp-items="ViewBag.Years"></select>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold text-uppercase text-secondary">Автори (виберіть декілька)</label>
+                                    <select name="selectedAuthors" class="form-select" multiple style="height: 125px;" asp-items="ViewBag.Authors">
+                                    </select>
+                                    <div class="form-text text-muted small">Утримуйте Ctrl, щоб вибрати декількох авторів.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Annotation" class="form-label small fw-bold text-uppercase text-secondary"></label>
+                            <textarea asp-for="Annotation" class="form-control" rows="4" placeholder="Короткий опис книги..."></textarea>
+                            <span asp-validation-for="Annotation" class="text-danger small"></span>
+                        </div>
+
+                        <hr class="my-4 opacity-10" />
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-warning px-4 fw-bold shadow-sm">
+                                ✅ Зберегти зміни
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                Скасувати
+                            </a>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="Annotation" class="control-label"></label>
-                <input asp-for="Annotation" class="form-control" />
-                <span asp-validation-for="Annotation" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="PublicationTypeId" class="control-label">Тип видання</label>
-                <select asp-for="PublicationTypeId" class="form-control" asp-items="ViewBag.PublicationTypeId"></select>
-                <span asp-validation-for="PublicationTypeId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Year" class="control-label"></label>
-                <select asp-for="Year" class="form-control" asp-items="ViewBag.Years">
-                </select>
-            </div>
-            <input type="hidden" asp-for="Id" />
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }

@@ -1,5 +1,41 @@
-﻿@using (Html.BeginForm("Import", "Publications", FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
-    <input type="file" name="fileExcel" />
-    <input type="submit" value="Завантажити" />
+﻿@{
+    ViewData["Title"] = "Імпорт видань";
 }
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-0 bg-body-tertiary">
+                <div class="card-header bg-primary bg-gradient text-white border-0 py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-file-earmark-excel me-2"></i>Імпорт даних з Excel
+                    </h5>
+                </div>
+                <div class="card-body py-4">
+                    <p class="text-secondary small mb-4">
+                        Виберіть файл формату <strong>.xlsx</strong> або <strong>.xls</strong> для завантаження списку видань до бази даних.
+                    </p>
+
+                    @using (Html.BeginForm("Import", "Publications", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        <div class="mb-4">
+                            <label for="fileExcel" class="form-label fw-bold text-uppercase small text-secondary">Файл Excel</label>
+                            <input type="file" name="fileExcel" id="fileExcel" class="form-control" accept=".xlsx, .xls" required />
+                        </div>
+
+                        <hr class="my-4 opacity-10" />
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm">
+                                📥 Завантажити
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
+                                Скасувати
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

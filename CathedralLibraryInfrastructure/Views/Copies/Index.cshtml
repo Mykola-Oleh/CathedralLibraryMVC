@@ -1,19 +1,24 @@
 ﻿@model IEnumerable<CathedralLibraryDomain.Model.Copy>
 
 @{
-    ViewData["Title"] = "Примірник";
+    ViewData["Title"] = "Примірники";
 }
 
 <h1>Примірник</h1>
-
+<div class="mb-3 d-flex gap-2 flex-wrap">
 @if (User.IsInRole("admin"))
 {
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Додати новий примірник</a>
-    </p>
-}
-<table class="table">
-    <thead>
+    
+        <a asp-action="Create" class="btn btn-success">
+            ➕ Додати новий примірник
+        </a>
+        
+
+    }
+    <a asp-action="Index" asp-controller="Publications" class="btn btn-outline-secondary"> Назад до видань</a>
+</div>
+<table class="table table-hover align-middle">
+    <thead class="table-light">
         <tr>
             <th>
                 @Html.DisplayNameFor(model => model.Publication)
@@ -21,7 +26,7 @@
             <th>
                 @Html.DisplayNameFor(model => model.Status)
             </th>
-            <th></th>
+            <th class="text-end">Дії</th>
         </tr>
     </thead>
     <tbody>
@@ -33,15 +38,37 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Status.StatusName)
             </td>
-                <td>
-                    @Html.ActionLink("Details", "Details", new { id = item.PublicationId, copyNum = item.Copynumber })
-                @if (User.IsInRole("admin"))
-                {                  
-                @Html.ActionLink("Edit", "Edit", new { id = item.PublicationId, copyNum = item.Copynumber }) 
-                                <span> | </span>
-                @Html.ActionLink("Delete", "Delete", new { id = item.PublicationId, copyNum = item.Copynumber })
-                }
-            </td>
+                <td class="text-end text-nowrap">
+                    <div class="btn-group" role="group">
+                        <a asp-action="Details"
+                           asp-route-id="@item.PublicationId"
+                           asp-route-copyNum="@item.Copynumber"
+                           asp-route-returnUrl="@(Context.Request.Path + Context.Request.QueryString)"
+                           class="btn btn-sm btn-outline-info"
+                           title="Деталі">
+                            🔍
+                        </a>
+
+                        @if (User.IsInRole("admin"))
+                        {
+                            <a asp-action="Edit"
+                               asp-route-id="@item.PublicationId"
+                               asp-route-copyNum="@item.Copynumber"
+                               class="btn btn-sm btn-outline-warning"
+                               title="Редагувати">
+                                ✏️
+                            </a>
+
+                            <a asp-action="Delete"
+                               asp-route-id="@item.PublicationId"
+                               asp-route-copyNum="@item.Copynumber"
+                               class="btn btn-sm btn-outline-danger"
+                               title="Видалити">
+                                🗑️
+                            </a>
+                        }
+                    </div>
+                </td>
         </tr>
 }
     </tbody>

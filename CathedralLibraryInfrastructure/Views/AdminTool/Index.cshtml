@@ -1,0 +1,108 @@
+﻿@model AdminToolViewModel
+
+@{
+    ViewData["Title"] = "Керування довідниками";
+}
+
+<h1>Налаштування системи</h1>
+
+
+
+<ul class="nav nav-tabs" id="dictTabs" role="tablist">
+    <li class="nav-item">
+        <a class="nav-link @(Model.ActiveTab == "PublicationType" ? "active" : "")" id="pub-tab" data-bs-toggle="tab" href="#pubContent">Типи видань</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model.ActiveTab == "RequestStatus" ? "active" : "")" id="req-tab" data-bs-toggle="tab" href="#reqContent">Статуси запитів</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(Model.ActiveTab == "CopyStatus" ? "active" : "")" id="copy-tab" data-bs-toggle="tab" href="#copyContent">Статуси копій</a>
+    </li>
+</ul>
+
+<div class="tab-content border-start border-end border-bottom p-3">
+
+    <div class="tab-pane fade @(Model.ActiveTab == "PublicationType" ? "show active" : "")" id="pubContent">
+        <div class="d-flex justify-content-end mb-2">
+            <a asp-action="CreatePublicationType" class="btn btn-sm btn-success">➕ Додати тип</a>
+        </div>
+        <table class="table">
+            <thead><tr><th>Назва</th><th class="text-end">Дії</th></tr></thead>
+            <tbody>
+                @foreach (var item in Model.PublicationTypes)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td class="text-end">
+                            <a asp-action="EditPublicationType" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Редагувати">✏️</a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" asp-route-type="PublicationType" method="post" class="d-inline" onsubmit="return confirm('Всі пов\'язані видання будуть перенесені на тип \'На уточненні\'. Продовжити?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Видалити">🗑️</button>
+                            </form>
+                            
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane fade @(Model.ActiveTab == "RequestStatus" ? "show active" : "")" id="reqContent">
+        <div class="d-flex justify-content-end mb-2">
+            <a asp-action="CreateRequestStatus" class="btn btn-sm btn-success">➕ Додати статус</a>
+        </div>
+        <table class="table">
+            <thead><tr><th>Статус</th><th class="text-end">Дії</th></tr></thead>
+            <tbody>
+                @foreach (var item in Model.RequestStatuses)
+                {
+                    <tr>
+                        <td>@item.StatusName</td>
+                        <td class="text-end">
+                            <a asp-action="EditRequestStatus" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Редагувати">✏️</a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" asp-route-type="RequestStatus" method="post" class="d-inline" onsubmit="return confirm('Ви впевнені?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Видалити">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="tab-pane fade @(Model.ActiveTab == "CopyStatus" ? "show active" : "")" id="copyContent">
+        <div class="d-flex justify-content-end mb-2">
+            <a asp-action="CreateCopyStatus" class="btn btn-sm btn-success">➕ Додати статус</a>
+        </div>
+        <table class="table">
+            <thead><tr><th>Статус копії</th><th class="text-end">Дії</th></tr></thead>
+            <tbody>
+                @foreach (var item in Model.CopyStatuses)
+                {
+                    <tr>
+                        <td>@item.StatusName</td>
+                        <td class="text-end">
+                            <a asp-action="EditCopyStatus" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Редагувати">✏️</a>
+                            <form asp-action="Delete" asp-route-id="@item.Id" asp-route-type="CopyStatus" method="post" class="d-inline" onsubmit="return confirm('Ви впевнені?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Видалити">🗑️</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+@section Scripts {
+    <script>
+        var triggerTabList = [].slice.call(document.querySelectorAll('#dictTabs a'))
+        triggerTabList.forEach(function (triggerEl) {
+            var tabTrigger = new bootstrap.Tab(triggerEl)
+            triggerEl.addEventListener('click', function (event) {
+                event.preventDefault()
+                tabTrigger.show()
+            })
+        })
+    </script>
+}

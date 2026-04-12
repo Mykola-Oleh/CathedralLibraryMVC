@@ -55,6 +55,15 @@ public partial class DbCathedralLibraryContext : DbContext
                 .HasForeignKey(d => new { d.PublicationId, d.Copynumber });
         });
 
-        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<Author>(entity =>
+        { 
+        entity.HasMany(a => a.Publications)
+        .WithMany(p => p.Authors)
+        .UsingEntity<Dictionary<string, object>>(
+            "publicationauthors",
+            j => j.HasOne<Publication>().WithMany().HasForeignKey("publication_id"),
+            j => j.HasOne<Author>().WithMany().HasForeignKey("author_id")
+        );
+        });
     }
 }

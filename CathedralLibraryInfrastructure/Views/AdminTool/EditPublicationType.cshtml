@@ -1,0 +1,45 @@
+﻿@model CathedralLibraryDomain.Model.PublicationType
+
+@{
+    ViewData["Title"] = "Редагування типу видання";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-white">
+                    <h4 class="mb-0">Редагування типу видання</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditPublicationType">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="control-label fw-bold">Назва типу</label>
+                            <input asp-for="Name" class="form-control" placeholder="Введіть назву (напр. Книга, Журнал)" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" asp-route-tab="PublicationType" class="btn btn-secondary">
+                                ⬅ Назад
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                💾 Зберегти зміни
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

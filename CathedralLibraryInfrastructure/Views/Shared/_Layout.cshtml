@@ -33,7 +33,7 @@
                             <a class="nav-link" asp-controller="Publications" asp-action="Index">Видання</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" asp-controller="Readers" asp-action="Index">Читачі</a>
+                            <a class="nav-link" asp-controller="Authors" asp-action="Index">Автори</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" asp-controller="Requests" asp-action="Index">Запити</a>
@@ -44,11 +44,16 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Roles" asp-action="Index">Ролі</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="AdminTool" asp-action="Index">⚙️ Адмін-панель</a>
+                            </li>
                         }
                     </ul>
 
                     <ul class="navbar-nav ms-auto align-items-center">
-
+                        <button id="theme-toggle" class="btn btn-outline-secondary">
+                            <span id="theme-icon">🌙</span>
+                        </button>
                         @if (User.Identity.IsAuthenticated)
                         {
                             <li class="nav-item me-2">
@@ -92,17 +97,44 @@
         </div>
     </main>
 
-    <footer class="bg-light border-top mt-auto">
-        <div class="container py-3 text-center text-muted">
-            &copy; 2026 - Cathedral Library |
-            <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <footer class="border-top mt-auto py-3">
+        <div class="container text-center">
+            <span class="text-body-secondary">&copy; 2026 - Cathedral Library | </span>
+            <a asp-controller="Home" asp-action="Privacy" class="text-decoration-none">Privacy</a>
         </div>
     </footer>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        // 1. Функція для встановлення іконки
+        function updateIcon(theme) {
+            const icon = document.getElementById("theme-icon");
+            if (icon) {
+                icon.textContent = theme === "dark" ? "☀️" : "🌙";
+            }
+        }
 
+        // 2. Негайна перевірка теми (щоб не було блимання)
+        const savedTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-bs-theme", savedTheme);
+
+        // 3. Логіка після завантаження DOM
+        document.addEventListener("DOMContentLoaded", function() {
+            updateIcon(savedTheme);
+
+            const btn = document.getElementById("theme-toggle");
+            btn.addEventListener("click", function () {
+                let currentTheme = document.documentElement.getAttribute("data-bs-theme");
+                let newTheme = currentTheme === "dark" ? "light" : "dark";
+
+                document.documentElement.setAttribute("data-bs-theme", newTheme);
+                localStorage.setItem("theme", newTheme);
+                updateIcon(newTheme);
+            });
+        });
+    </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

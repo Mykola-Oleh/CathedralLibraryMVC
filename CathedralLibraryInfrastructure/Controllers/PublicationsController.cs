@@ -28,53 +28,51 @@ namespace CathedralLibraryInfrastructure.Controllers
         [Authorize]
         public async Task<IActionResult> Index(string sortOrder)
         {
-            ViewBag.TitleSortParm = String.IsNullOrEmpty(sortOrder) ? "title_desc" : "";
+            ViewBag.TitleSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewBag.YearSortParm = sortOrder == "Year" ? "year_desc" : "Year";
             ViewBag.TypeSortParm = sortOrder == "Type" ? "type_desc" : "Type";
+            ViewBag.CurrentSort = sortOrder;
 
-            var publications = _context.Publications
-                .Include(p => p.PublicationType)
-                .AsQueryable();
+            var publications = _context.Publications.Include(p => p.PublicationType).AsQueryable()
+        .Include(p => p.PublicationType)
+        .Include(p => p.Authors)
+        .AsQueryable();
             switch (sortOrder)
             {
-                case "title_desc":
-                    publications = publications.OrderByDescending(p => p.Title);
+                case "name_desc":
+                    publications = publications.OrderByDescending(s => s.Title);
                     break;
                 case "Year":
-                    publications = publications.OrderBy(p => p.Year);
+                    publications = publications.OrderBy(s => s.Year);
                     break;
                 case "year_desc":
-                    publications = publications.OrderByDescending(p => p.Year);
+                    publications = publications.OrderByDescending(s => s.Year);
                     break;
                 case "Type":
-                    publications = publications.OrderBy(p => p.PublicationTypeId);
+                    publications = publications.OrderBy(s => s.PublicationType.Name);
                     break;
                 case "type_desc":
-                    publications = publications.OrderByDescending(p => p.PublicationTypeId);
+                    publications = publications.OrderByDescending(s => s.PublicationType.Name);
                     break;
                 default:
-                    publications = publications.OrderBy(p => p.Title);
+                    publications = publications.OrderBy(s => s.Title);
                     break;
             }
 
-            return View(await publications.AsNoTracking().ToListAsync());
+            return View(await publications.ToListAsync());
         }
 
         // GET: Publications/Details/5
         public async Task<IActionResult> Details(Guid? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var publication = await _context.Publications
                 .Include(p => p.PublicationType)
+                .Include(p => p.Authors)
                 .FirstOrDefaultAsync(m => m.Id == id);
-            if (publication == null)
-            {
-                return NotFound();
-            }
+
+            if (publication == null) return NotFound();
 
             return View(publication);
         }
@@ -100,17 +98,25 @@ namespace CathedralLibraryInfrastructure.Controllers
         {
             ViewBag.Years = GetYearsList(DateTime.Now.Year);
             ViewData["PublicationTypeId"] = new SelectList(_context.PublicationType, "Id", "Name");
+            ViewBag.Authors = new MultiSelectList(_context.Authors, "Id", "LastName");
             return View();
         }
-
         // POST: Publications/Create
         [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Title,Annotation,PublicationTypeId,Year")] Publication publication)
+        public async Task<IActionResult> Create(Publication publication, Guid[] selectedAuthors)
         {
             if (ModelState.IsValid)
             {
+                if (selectedAuthors != null)
+                {
+                    foreach (var authorId in selectedAuthors)
+                    {
+                        var author = await _context.Authors.FindAsync(authorId);
+                        if (author != null) publication.Authors.Add(author);
+                    }
+                }
                 publication.Id = Guid.NewGuid();
                 _context.Add(publication);
                 await _context.SaveChangesAsync();
@@ -125,18 +131,24 @@ namespace CathedralLibraryInfrastructure.Controllers
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(Guid? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var publication = await _context.Publications.FindAsync(id);
-            if (publication == null)
+            var publication = await _context.Publications
+                .Include(p => p.Authors)
+                .FirstOrDefaultAsync(m => m.Id == id);
+
+            if (publication == null) return NotFound();
+
+            ViewBag.PublicationTypeId = new SelectList(_context.PublicationType, "Id", "Name", publication.PublicationTypeId);
+            var allAuthors = await _context.Authors.ToListAsync();
+            ViewBag.Authors = allAuthors.Select(a => new SelectListItem
             {
-                return NotFound();
-            }
+                Text = $"{a.LastName} {a.FirstName}",
+                Value = a.Id.ToString(),
+                Selected = publication.Authors.Any(pa => pa.Id == a.Id)
+            }).ToList();
+
             ViewBag.Years = GetYearsList(publication.Year);
-            ViewData["PublicationTypeId"] = new SelectList(_context.PublicationType, "Id", "Name");
             return View(publication);
         }
 
@@ -144,37 +156,42 @@ namespace CathedralLibraryInfrastructure.Controllers
         [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,Annotation,PublicationTypeId,Year")] Publication publication)
+        public async Task<IActionResult> Edit(Guid id, [Bind("Id,Title,Annotation,PublicationTypeId,Year")] Publication publication, Guid[] selectedAuthors)
         {
-            if (id != publication.Id)
-            {
-                return NotFound();
-            }
+            if (id != publication.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
-                    _context.Update(publication);
+                    var pubToUpdate = await _context.Publications
+                        .Include(p => p.Authors)
+                        .FirstOrDefaultAsync(m => m.Id == id);
+                    pubToUpdate.Title = publication.Title;
+                    pubToUpdate.Annotation = publication.Annotation;
+                    pubToUpdate.PublicationTypeId = publication.PublicationTypeId;
+                    pubToUpdate.Year = publication.Year;
+                    pubToUpdate.Authors.Clear();
+                    if (selectedAuthors != null)
+                    {
+                        foreach (var authorId in selectedAuthors)
+                        {
+                            var author = await _context.Authors.FindAsync(authorId);
+                            if (author != null) pubToUpdate.Authors.Add(author);
+                        }
+                    }
+
+                    _context.Update(pubToUpdate);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PublicationExists(publication.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
+                catch (DbUpdateConcurrencyException) { /* ... */ }
                 return RedirectToAction(nameof(Index));
             }
             ViewBag.Years = GetYearsList(publication.Year);
             ViewData["PublicationTypeId"] = new SelectList(_context.PublicationType, "Id", "Name");
             return View(publication);
         }
+
         [Authorize]
         public async Task<IActionResult> Copies(Guid? id)
         {

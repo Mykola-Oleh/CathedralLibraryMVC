@@ -1,0 +1,35 @@
+﻿@model CathedralLibraryDomain.Model.Requeststatus
+
+@{
+    ViewData["Title"] = "Редагування статусу запиту";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-sm border-info">
+                <div class="card-header bg-info text-white">
+                    <h4 class="mb-0">Статус запиту</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="EditRequestStatus">
+                        <input type="hidden" asp-for="Id" />
+                        <div class="form-group mb-3">
+                            <label asp-for="StatusName" class="control-label fw-bold">Назва статусу</label>
+                            <input asp-for="StatusName" class="form-control" />
+                            <span asp-validation-for="StatusName" class="text-danger"></span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" asp-route-tab="RequestStatus" class="btn btn-outline-secondary">
+                                ⬅ Назад
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                💾 Зберегти зміни
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

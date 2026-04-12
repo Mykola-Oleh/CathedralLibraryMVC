@@ -1,7 +1,40 @@
-﻿<form asp-action="Create" method="post">
-    <div class="form-group">
-        <label>Назва нової ролі:</label>
-        <input name="name" class="form-control" />
+﻿@{
+    ViewData["Title"] = "Додавання нової ролі";
+}
+
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary bg-gradient text-white border-0 py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-shield-lock-fill me-2"></i>Створення ролі
+                    </h5>
+                </div>
+
+                <div class="card-body py-4">
+                    <div class="text-center mb-4">
+                        <div class="display-6 text-primary mb-2">🛡️</div>
+                        <h4 class="fw-bold">Новий рівень доступу</h4>
+                        <p class="text-muted small">Введіть назву ролі</p>
+                    </div>
+
+                    <form asp-action="Create" method="post">
+                        <div class="form-floating mb-4">
+                            <input name="name" id="roleName" class="form-control" placeholder="Назва ролі" required />
+                            <label for="roleName">Назва нової ролі (напр. moderator)</label>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg shadow-sm fw-bold">
+                                <i class="bi bi-plus-circle me-2"></i>Додати роль
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                Повернутися до списку
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
-    <button type="submit" class="btn btn-primary mt-2">Додати</button>
-</form>
+</div>

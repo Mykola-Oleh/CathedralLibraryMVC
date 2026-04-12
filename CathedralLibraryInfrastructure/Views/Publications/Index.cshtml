@@ -5,66 +5,95 @@
 }
 
 <h1>Видання</h1>
-
-@if (User.IsInRole("admin"))
-{
-    <p>
-        <a asp-action="Create" class="btn btn-primary">Додати нове видання</a>
-        <a class="btn btn-primary mb-3" asp-controller="Publications" asp-action="Import">Завантажити з файлу</a>
-        <a class="btn btn-primary mb-3" asp-controller="Publications" asp-action="Export">Експортувати у файл</a>
-    </p>
+<div class="mb-3 d-flex gap-2 flex-wrap">
+@if (User.IsInRole("admin")){
+    
+        <a asp-action="Create" class="btn btn-success">
+            ➕ Додати видання
+        </a>
 }
-<table class="table">
-    <thead>
+        <a asp-action="AllCopies" asp-controller="Copies" class="btn btn-outline-primary">
+            📋 Усі примірники
+        </a>
+    @if (User.IsInRole("admin"))
+    {
+        <div class="ms-auto">
+            <a asp-action="Import" asp-controller="Publications" class="btn btn-outline-secondary">
+                📥 Імпорт
+            </a>
+            <a asp-action="Export" asp-controller="Publications" class="btn btn-outline-secondary">
+                📤 Експорт
+            </a>
+        </div>
+    }
+</div>
+
+<table class="table table-hover align-middle">
+    <thead class="table-light">
         <tr>
             <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewBag.TitleSortParm">
-                    @Html.DisplayNameFor(model => model.Title)
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.TitleSortParm" class="text-decoration-none text-dark">
+                    Назва видання @(ViewBag.TitleSortParm == "name_desc" ? "▼" : "▲")
+                </a>
+            </th>
+            <th>Анотація</th>
+            <th>
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.TypeSortParm" class="text-decoration-none text-dark">
+                    Тип @(ViewBag.TypeSortParm == "Type" ? "▲" : "▼")
                 </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Annotation)
-            </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewBag.TypeSortParm">
-                    @Html.DisplayNameFor(model => model.PublicationTypeId)
+                <a asp-action="Index" asp-route-sortOrder="@ViewBag.YearSortParm" class="text-decoration-none text-dark">
+                    Рік @(ViewBag.YearSortParm == "Year" ? "▲" : "▼")
                 </a>
             </th>
-            <th>
-                <a asp-action="Index" asp-route-sortOrder="@ViewBag.YearSortParm">
-                    @Html.DisplayNameFor(model => model.Year)
-                </a>
-            </th>
-            <th></th>
+            <th>Автори</th>
+            <th class="text-end">Дії</th>
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Annotation)
-            </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.PublicationType.Name)
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td class="fw-bold">@item.Title</td>
+                <td class="text-muted" style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                    @item.Annotation
                 </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Year)
-            </td>
-            <td>
-                    <a asp-action="Copies" asp-route-id="@item.Id">Copies</a> |
-                    <a asp-action="Details" asp-route-id="@item.Id">Details</a>
-                    @if (User.IsInRole("admin"))
+                <td>@item.PublicationType?.Name</td>
+                <td>@item.Year</td>
+                <td>
+                    @if (item.Authors != null && item.Authors.Any())
                     {
-                        <span> | </span>
-                        <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
-                        <span> | </span>
-                        <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        <span class="text-nowrap">
+                            @string.Join(", ", item.Authors.Select(a =>
+                            (!string.IsNullOrEmpty(a.FirstName) ? a.FirstName[0] + ". " : "") + a.LastName))
+                </span>
+                                }
+                    else
+                    {
+                        <span class="text-muted small italic">Не вказано</span>
                     }
                 </td>
-        </tr>
-}
+                <td class="text-end text-nowrap">
+                    <div class="btn-group" role="group">
+                        <a asp-action="Copies" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Примірники">
+                            📖 Примірники
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info" title="Деталі">
+                            🔍
+                        </a>
+                        @if (User.IsInRole("admin"))
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-warning" title="Редагувати">
+                                ✏️
+                            </a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger" title="Видалити">
+                                🗑️
+                            </a>
+                        }
+                    </div>
+                </td>
+            </tr>
+        }
     </tbody>
 </table>

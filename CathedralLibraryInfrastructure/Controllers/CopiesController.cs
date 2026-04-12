@@ -33,22 +33,17 @@ namespace CathedralLibraryInfrastructure.Controllers
         }
 
         // GET: Copies/Details/5
-        public async Task<IActionResult> Details(Guid? id, int? copyNum)
+        public async Task<IActionResult> Details(Guid? id, int? copyNum, string returnUrl = null)
         {
-            if (id == null || copyNum == null)
-            {
-                return NotFound();
-            }
+            if (id == null || copyNum == null) return NotFound();
 
             var copy = await _context.Copies
                 .Include(c => c.Publication)
                 .Include(c => c.Status)
                 .FirstOrDefaultAsync(m => m.PublicationId == id && m.Copynumber == copyNum);
 
-            if (copy == null)
-            {
-                return NotFound();
-            }
+            if (copy == null) return NotFound();
+            ViewBag.ReturnUrl = returnUrl;
 
             return View(copy);
         }
@@ -85,7 +80,7 @@ namespace CathedralLibraryInfrastructure.Controllers
         }
 
         // GET: Copies/Edit/5
-        public async Task<IActionResult> Edit(Guid? id, int? copyNum)
+        public async Task<IActionResult> Edit(Guid? id, int? copyNum, string returnUrl = null)
         {
             if (id == null)
             {
@@ -98,6 +93,7 @@ namespace CathedralLibraryInfrastructure.Controllers
                 return NotFound();
             }
             ViewBag.PublicationId = id;
+            ViewBag.ReturnUrl = returnUrl;
             ViewData["PublicationId"] = new SelectList(_context.Publications, "Id", "Title", copy.PublicationId);
             ViewData["StatusId"] = new SelectList(_context.Copystatuses, "Id", "StatusName", copy.StatusId);
             return View(copy);
@@ -110,6 +106,8 @@ namespace CathedralLibraryInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Guid id, [Bind("PublicationId,Copynumber,StatusId")] Copy copy)
         {
+            ModelState.Remove("Publication");
+            ModelState.Remove("Status");
             if (id != copy.PublicationId)
             {
                 return NotFound();
@@ -174,6 +172,16 @@ namespace CathedralLibraryInfrastructure.Controllers
             }
 
             return RedirectToAction(nameof(Index), new { id = PublicationId });
+        }
+        // GET: Copies/AllCopies
+        public async Task<IActionResult> AllCopies()
+        {
+            var allCopies = await _context.Copies
+                .Include(c => c.Publication) // Тільки одна стрілочка!
+                .Include(c => c.Status)      // Тільки одна стрілочка!
+                .ToListAsync();
+
+            return View(allCopies);
         }
     }
 }

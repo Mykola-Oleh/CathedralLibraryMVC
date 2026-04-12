@@ -1,45 +1,79 @@
 ﻿@model CathedralLibraryDomain.Model.Publication
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Видалення видання";
 }
 
-<h1>Delete</h1>
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-danger bg-gradient text-white border-0 py-3">
+                    <h5 class="card-title mb-0">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>Підтвердження видалення
+                    </h5>
+                </div>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>Publication</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Annotation)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Annotation)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.PublicationType)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.PublicationType.Name)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Year)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Year)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="Id" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                <div class="card-body py-4">
+                    <div class="text-center mb-4">
+                        <div class="display-6 text-danger mb-2">🗑️</div>
+                        <h4 class="fw-bold">Ви впевнені?</h4>
+                        <p class="text-muted">Цю дію неможливо буде скасувати. Видання та вся пов'язана інформація будуть видалені.</p>
+                    </div>
+
+                    <div class="bg-light-subtle rounded-3 p-4 mb-4 border-start border-danger border-4">
+                        <dl class="row mb-0">
+                            <dt class="col-sm-3 text-secondary small text-uppercase">
+                                @Html.DisplayNameFor(model => model.Title)
+                            </dt>
+                            <dd class="col-sm-9 fw-bold">
+                                @Html.DisplayFor(model => model.Title)
+                            </dd>
+
+                            <dt class="col-sm-3 text-secondary small text-uppercase mt-2">
+                                @Html.DisplayNameFor(model => model.Annotation)
+                            </dt>
+                            <dd class="col-sm-9 mt-2 text-muted small">
+                                @Html.DisplayFor(model => model.Annotation)
+                            </dd>
+
+                            <dt class="col-sm-3 text-secondary small text-uppercase mt-2">
+                                @Html.DisplayNameFor(model => model.PublicationType)
+                            </dt>
+                            <dd class="col-sm-9 mt-2">
+                                <span class="badge bg-info text-dark">@Html.DisplayFor(model => model.PublicationType.Name)</span>
+                            </dd>
+
+                            <dt class="col-sm-3 text-secondary small text-uppercase mt-2">
+                                @Html.DisplayNameFor(model => model.Year)
+                            </dt>
+                            <dd class="col-sm-9 mt-2">
+                                @Html.DisplayFor(model => model.Year) р.
+                            </dd>
+                        </dl>
+                    </div>
+
+                    <form asp-action="Delete">
+                        <input type="hidden" asp-for="Id" />
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-center">
+                            <button type="submit" class="btn btn-danger btn-lg px-5 shadow-sm fw-bold">
+                                Підтвердити видалення
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary btn-lg px-4">
+                                Скасувати
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <p class="text-muted small">
+                    <i class="bi bi-info-circle me-1"></i>
+                    При видаленні видання будуть також видалені всі його примірники.
+                </p>
+            </div>
+        </div>
+    </div>
 </div>

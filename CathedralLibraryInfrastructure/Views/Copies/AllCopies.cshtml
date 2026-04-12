@@ -1,0 +1,51 @@
+﻿@model IEnumerable<CathedralLibraryDomain.Model.Copy>
+
+@{
+    ViewData["Title"] = "Реєстр усіх примірників";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>📚 Загальний реєстр примірників</h1>
+    <a asp-controller="Publications" asp-action="Index" class="btn btn-outline-secondary">
+        Назад до видань
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <table class="table table-hover">
+            <thead class="table-light">
+                <tr>
+                    <th>Інвентарний №</th>
+                    <th>Видання</th>
+                    <th>Статус</th>
+                    <th class="text-end">Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="fw-bold">@item.Copynumber</td>
+                        <td>@item.Publication?.Title</td>
+                        <td>
+                            <span class="badge @(item.Status?.StatusName == "В наявності" ? "bg-success" : "bg-info")">
+                                @item.Status?.StatusName
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Details"
+                               asp-route-id="@item.PublicationId"
+                               asp-route-copyNum="@item.Copynumber"
+                               asp-route-returnUrl="@Context.Request.Path"
+                               class="btn btn-sm btn-outline-info"
+                               title="Деталі">
+                                🔍
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

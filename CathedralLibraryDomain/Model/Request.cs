@@ -8,7 +8,7 @@ public partial class Request : Entity<Guid>
     public Guid ReaderId { get; set; }
     public Guid PublicationId { get; set; }
     public int Copynumber { get; set; }
-    public Guid StatusId { get; set; }
+    public int StatusId { get; set; }
 
     public DateTime RequestDate { get; set; }
     public DateTime DueDate { get; set; }

@@ -3,37 +3,34 @@
 @{
     ViewData["Title"] = "Create";
 }
-
-<h1>Create</h1>
-
-<h4>Copy</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
+<div class="container mt-4">
+    <div class="card shadow-sm col-md-6 mx-auto">
+        <div class="card-header bg-success text-white">
+            <h4>Новий примірник</h4>
+        </div>
+        <div class="card-body">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="PublicationId" class="control-label"></label>
+                <div class="mb-3">
+                    <label asp-for="PublicationId" class="control-label fw-bold"></label>
                 <select asp-for="PublicationId" class ="form-control" asp-items="ViewBag.PublicationId"></select>
             </div>
-            <div class="form-group">
-                <label asp-for="Copynumber" class="control-label"></label>
+                <div class="mb-3">
+                    <label asp-for="Copynumber" class="control-label fw-bold"></label>
                 <input asp-for="Copynumber" class="form-control" />
                 <span asp-validation-for="Copynumber" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="StatusId" class="control-label"></label>
+                <div class="mb-3">
+                    <label asp-for="StatusId" class="control-label fw-bold"></label>
                 <select asp-for="StatusId" class ="form-control" asp-items="ViewBag.StatusId"></select>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" asp-route-id="@ViewBag.PublicationId" class="btn btn-secondary">⬅ Назад</a>
+                    <button type="submit" class="btn btn-success">➕ Додати</button>
+                </div>
         </form>
+        </div>
     </div>
-</div>
-
-<div>
-    <a asp-action="Index" asp-route-id="@ViewBag.PublicationId">Back to List</a>
 </div>
 
 @section Scripts {

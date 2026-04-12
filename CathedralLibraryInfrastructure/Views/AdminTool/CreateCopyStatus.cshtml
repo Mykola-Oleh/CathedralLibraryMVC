@@ -1,0 +1,21 @@
+﻿@model CathedralLibraryDomain.Model.Copystatus
+
+<div class="container mt-4">
+    <div class="card shadow-sm col-md-6 mx-auto">
+        <div class="card-header bg-success text-white">
+            <h4>Новий статус запиту</h4>
+        </div>
+        <div class="card-body">
+            <form asp-action="CreateCopyStatus">
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Назва</label>
+                    <input asp-for="StatusName" class="form-control" required />
+                </div>
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" asp-route-tab="CopyStatus" class="btn btn-secondary">⬅ Назад</a>
+                    <button type="submit" class="btn btn-success">➕ Створити</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
