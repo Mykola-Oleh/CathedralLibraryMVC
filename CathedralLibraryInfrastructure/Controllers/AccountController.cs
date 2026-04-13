@@ -39,6 +39,7 @@ namespace CathedralLibraryInfrastructure.Controllers
                 }*/
                 if (result.Succeeded)
                 {
+                    await _userManager.AddToRoleAsync(user, "user");
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }
