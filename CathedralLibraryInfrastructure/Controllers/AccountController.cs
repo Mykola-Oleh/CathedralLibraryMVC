@@ -10,11 +10,13 @@ namespace CathedralLibraryInfrastructure.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly DbCathedralLibraryContext _context;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, DbCathedralLibraryContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _context = context;
         }
 
         [HttpGet]
@@ -40,6 +42,18 @@ namespace CathedralLibraryInfrastructure.Controllers
                 if (result.Succeeded)
                 {
                     await _userManager.AddToRoleAsync(user, "user");
+                    var reader = new Reader
+                    {
+                        UserId = user.Id,
+                        FirstName = user.First_name,
+                        LastName = user.Last_name,
+                        Faculty = "Не вказано",
+                        Department = "Не вказано",
+                        Position = "Студент"
+                    };
+
+                    _context.Readers.Add(reader);
+                    await _context.SaveChangesAsync();
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return RedirectToAction("Index", "Home");
                 }

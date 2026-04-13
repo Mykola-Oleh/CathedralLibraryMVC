@@ -1,0 +1,74 @@
+﻿@model CathedralLibraryInfrastructure.ViewModels.EditProfileViewModel
+@{
+    ViewData["Title"] = "Редагування профілю";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold text-primary mb-4 text-center">Редагування профілю</h3>
+
+                    <form asp-action="Edit" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger small mb-3"></div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label fw-semibold">Ім'я</label>
+                                <input asp-for="FirstName" class="form-control" />
+                                <span asp-validation-for="FirstName" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label fw-semibold">Прізвище</label>
+                                <input asp-for="LastName" class="form-control" />
+                                <span asp-validation-for="LastName" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Faculty" class="form-label fw-semibold">Факультет</label>
+                            <input asp-for="Faculty" class="form-control" placeholder="Наприклад: ФКНК" />
+                            <span asp-validation-for="Faculty" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Department" class="form-label fw-semibold">Кафедра</label>
+                            <input asp-for="Department" class="form-control" placeholder="Назва кафедри" />
+                            <span asp-validation-for="Department" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Position" class="form-label fw-semibold">Посада/Статус</label>
+                                <select asp-for="Position" class="form-select">
+                                    <option value="Студент">Студент</option>
+                                    <option value="Викладач">Викладач</option>
+                                    <option value="Аспірант">Аспірант</option>
+                                    <option value="Співробітник">Співробітник</option>
+                                </select>
+                                <span asp-validation-for="Position" class="text-danger small"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="Year" class="form-label fw-semibold">Курс/Рік</label>
+                                <input asp-for="Year" type="number" class="form-control" />
+                                <span asp-validation-for="Year" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary fw-bold">Зберегти зміни</button>
+                            <a asp-action="Profile" class="btn btn-outline-secondary">Скасувати</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,76 @@
+﻿@model UserProfileViewModel
+@{
+    ViewData["Title"] = "Мій профіль";
+}
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <img src="https://ui-avatars.com/api/?name=@Model.FullName&background=0D6EFD&color=fff&size=128"
+                             class="rounded-circle shadow" alt="Avatar">
+                    </div>
+                    <h4 class="fw-bold">@Model.FullName</h4>
+                    <p class="text-muted">@Model.Position</p>
+                    <hr>
+                    <div class="text-start">
+                        <p><strong>Email:</strong> @Model.Email</p>
+                        <p><strong>Факультет:</strong> @Model.Faculty</p>
+                        <p><strong>Кафедра:</strong> @Model.Department</p>
+                        <p><strong>Курс:</strong> @Model.Year</p>
+                    </div>
+                    <a asp-action="Edit" class="btn btn-outline-primary btn-sm w-100">Редагувати дані</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-book me-2"></i>Мої активні книги</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model.ActiveRequests.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Назва</th>
+                                        <th>Дата видачі</th>
+                                        <th>Термін до</th>
+                                        <th>Статус</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var req in Model.ActiveRequests)
+                                    {
+                                        <tr>
+                                            <td>@req.Copy.Publication.Title</td>
+                                            <td>@req.RequestDate.ToShortDateString()</td>
+                                            <td class="@(req.DueDate < DateTime.Now ? "text-danger fw-bold" : "")">
+                                                @req.DueDate.ToShortDateString()
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-info">На руках</span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-4">
+                            <p class="text-muted">У вас поки немає активних замовлень.</p>
+                            <a asp-controller="Publications" asp-action="Index" class="btn btn-primary">Переглянути каталог</a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
