@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace CathedralLibraryDomain.Model;
+﻿namespace CathedralLibraryDomain.Model;
 
 public partial class Request : Entity<Guid>
 {

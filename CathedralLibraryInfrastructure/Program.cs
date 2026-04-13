@@ -3,7 +3,6 @@ using CathedralLibraryInfrastructure;
 using CathedralLibraryInfrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();
@@ -12,19 +11,17 @@ builder.Services.AddDbContext<DbCathedralLibraryContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
            .UseSnakeCaseNamingConvention());
 
-builder.Services.AddDbContext<IdentityContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("IdentityConnection")));
-
 builder.Services.AddScoped<IDataPortServiceFactory<Publication>, PublicationDataPortServiceFactory>();
 
-builder.Services.AddIdentity<User, IdentityRole>(options => {
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
     options.Password.RequireDigit = false;
     options.Password.RequiredLength = 6;
     options.Password.RequireUppercase = false;
     options.Password.RequireNonAlphanumeric = false;
 })
-.AddEntityFrameworkStores<IdentityContext>()
-.AddDefaultTokenProviders(); 
+.AddEntityFrameworkStores<DbCathedralLibraryContext>()
+.AddDefaultTokenProviders();
 
 var app = builder.Build();
 

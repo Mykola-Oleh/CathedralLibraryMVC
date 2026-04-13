@@ -1,5 +1,4 @@
 ﻿using CathedralLibraryDomain.Model;
-using CathedralLibraryInfrastructure.Models;
 using CathedralLibraryInfrastructure.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +29,7 @@ namespace CathedralLibraryInfrastructure.Controllers
         {
             if (ModelState.IsValid)
             {
-                User user = new User {First_name=model.First_name,Last_name=model.Last_name, Email = model.Email, UserName = model.Email, Year = model.Year }; ViewBag.Years = GetYearsList(DateTime.Now.Year);
+                User user = new User { First_name = model.First_name, Last_name = model.Last_name, Email = model.Email, UserName = model.Email, Year = model.Year }; ViewBag.Years = GetYearsList(DateTime.Now.Year);
 
                 var result = await _userManager.CreateAsync(user, model.Password);
 

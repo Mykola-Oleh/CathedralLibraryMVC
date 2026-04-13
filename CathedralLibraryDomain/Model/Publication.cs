@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace CathedralLibraryDomain.Model;
 
 public partial class Publication : Entity<Guid>
 {
-    [Display (Name ="Назва видання")]
-    [Required(ErrorMessage ="Поле 'Назва' не повинно бути порожнім")]
+    [Display(Name = "Назва видання")]
+    [Required(ErrorMessage = "Поле 'Назва' не повинно бути порожнім")]
     [StringLength(255, ErrorMessage = "Поле 'Назва статусу' не може перевищувати 255 символів")]
     public string Title { get; set; } = null!;
 
@@ -22,7 +19,7 @@ public partial class Publication : Entity<Guid>
     public int PublicationTypeId { get; set; }
 
     [Display(Name = "Тип публікації")]
-    public virtual PublicationType? PublicationType { get; set; } = null!;
+    public virtual PublicationType PublicationType { get; set; } = null!;
 
     [Display(Name = "Рік")]
     public short Year { get; set; }

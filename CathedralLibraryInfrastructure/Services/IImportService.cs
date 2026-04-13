@@ -1,6 +1,4 @@
-﻿using CathedralLibraryDomain.Model;
-
-namespace CathedralLibraryInfrastructure.Services
+﻿namespace CathedralLibraryInfrastructure.Services
 {
     public interface IImportService<TEntity> where TEntity : class
     {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace CathedralLibraryDomain.Model;
+﻿namespace CathedralLibraryDomain.Model;
 
 public partial class Reader : Entity<Guid>
 {
@@ -10,6 +7,8 @@ public partial class Reader : Entity<Guid>
     public string Faculty { get; set; } = null!;
     public string Department { get; set; } = null!;
     public string Position { get; set; } = null!;
+    public string? UserId { get; set; }
+    public virtual User? User { get; set; }
 
     public virtual ICollection<Request> Requests { get; set; } = new List<Request>();
     public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CathedralLibraryDomain.Model;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CathedralLibraryDomain.Model;
-using CathedralLibraryInfrastructure;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {

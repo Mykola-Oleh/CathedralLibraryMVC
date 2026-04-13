@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using CathedralLibraryDomain.Model;
+﻿using CathedralLibraryDomain.Model;
 using CathedralLibraryInfrastructure.ViewModels;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {

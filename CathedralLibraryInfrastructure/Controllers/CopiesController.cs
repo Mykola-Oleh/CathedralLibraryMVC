@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CathedralLibraryDomain.Model;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using CathedralLibraryDomain.Model;
-using CathedralLibraryInfrastructure;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {
@@ -25,7 +20,7 @@ namespace CathedralLibraryInfrastructure.Controllers
         // GET: Copies
         public async Task<IActionResult> Index(Guid? id)
         {
-            if(id == null) return RedirectToAction("Index", "Publications");
+            if (id == null) return RedirectToAction("Index", "Publications");
 
             ViewBag.PublicationId = id;
             var copiesByPublication = _context.Copies.Where(c => c.PublicationId == id).Include(c => c.Publication).Include(c => c.Status);
@@ -49,7 +44,7 @@ namespace CathedralLibraryInfrastructure.Controllers
         }
 
         // GET: Copies/Create
-        public IActionResult Create(Guid? id) 
+        public IActionResult Create(Guid? id)
         {
             ViewBag.PublicationId = id;
             ViewData["PublicationId"] = new SelectList(_context.Publications, "Id", "Title", id);
@@ -122,7 +117,7 @@ namespace CathedralLibraryInfrastructure.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CopyExists(copy.PublicationId,copy.Copynumber))
+                    if (!CopyExists(copy.PublicationId, copy.Copynumber))
                     {
                         return NotFound();
                     }

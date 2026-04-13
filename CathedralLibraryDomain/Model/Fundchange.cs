@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace CathedralLibraryDomain.Model;
+﻿namespace CathedralLibraryDomain.Model;
 
 public partial class Fundchange : Entity<Guid>
 {
 
-    public int PublicationId { get; set; }
+    public Guid PublicationId { get; set; }
 
     public string ChangeType { get; set; } = null!;
 

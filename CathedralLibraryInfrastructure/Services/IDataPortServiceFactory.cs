@@ -1,7 +1,4 @@
-﻿using CathedralLibraryDomain.Model;
-using DocumentFormat.OpenXml.Vml.Office;
-
-namespace CathedralLibraryInfrastructure.Services
+﻿namespace CathedralLibraryInfrastructure.Services
 {
     public interface IDataPortServiceFactory<TEntity> where TEntity : class
     {
