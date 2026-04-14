@@ -1,0 +1,39 @@
+﻿@model IEnumerable<CathedralLibraryDomain.Model.Wishlist>
+@{
+    ViewData["Title"] = "Мій список бажань";
+}
+
+<div class="container mt-4">
+    <h2 class="fw-bold mb-4"><i class="bi bi-heart-fill text-danger me-2"></i>Список бажань</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5 shadow-sm rounded bg-light-subtle">
+            <p class="text-muted">Ваш список бажань порожній.</p>
+            <a asp-controller="Publications" asp-action="Index" class="btn btn-primary">Перейти до каталогу</a>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="card-title fw-bold">@item.Publication.Title</h5>
+                            <p class="card-text text-muted small">@item.Publication.Annotation</p>
+                        </div>
+                        <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
+                            <a asp-controller="Publications" asp-action="Details" asp-route-id="@item.PublicationId" class="btn btn-sm btn-outline-primary">Детальніше</a>
+
+                            <form asp-action="Remove" asp-route-id="@item.Id" method="post">
+                                <button type="submit" class="btn btn-sm btn-link text-danger p-0">Видалити</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

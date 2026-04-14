@@ -1,6 +1,7 @@
 ﻿using CathedralLibraryDomain.Model;
 using CathedralLibraryInfrastructure.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,10 +14,17 @@ namespace CathedralLibraryInfrastructure.Controllers
 
         private readonly IDataPortServiceFactory<Publication> _factory;
 
-        public PublicationsController(DbCathedralLibraryContext context, IDataPortServiceFactory<Publication> factory)
+
+        private readonly UserManager<User> _userManager;
+
+        public PublicationsController(
+            DbCathedralLibraryContext context,
+            IDataPortServiceFactory<Publication> factory,
+            UserManager<User> userManager)
         {
             _context = context;
             _factory = factory;
+            _userManager = userManager;
         }
 
         // GET: Publications
@@ -28,33 +36,32 @@ namespace CathedralLibraryInfrastructure.Controllers
             ViewBag.TypeSortParm = sortOrder == "Type" ? "type_desc" : "Type";
             ViewBag.CurrentSort = sortOrder;
 
-            var publications = _context.Publications.Include(p => p.PublicationType).AsQueryable()
-        .Include(p => p.PublicationType)
-        .Include(p => p.Authors)
-        .AsQueryable();
+            var publicationsQuery = _context.Publications
+                .Include(p => p.PublicationType)
+                .Include(p => p.Authors)
+                .AsQueryable();
             switch (sortOrder)
             {
-                case "name_desc":
-                    publications = publications.OrderByDescending(s => s.Title);
-                    break;
-                case "Year":
-                    publications = publications.OrderBy(s => s.Year);
-                    break;
-                case "year_desc":
-                    publications = publications.OrderByDescending(s => s.Year);
-                    break;
-                case "Type":
-                    publications = publications.OrderBy(s => s.PublicationType.Name);
-                    break;
-                case "type_desc":
-                    publications = publications.OrderByDescending(s => s.PublicationType.Name);
-                    break;
-                default:
-                    publications = publications.OrderBy(s => s.Title);
-                    break;
+                case "name_desc": publicationsQuery = publicationsQuery.OrderByDescending(s => s.Title); break;
+                case "Year": publicationsQuery = publicationsQuery.OrderBy(s => s.Year); break;
+                case "year_desc": publicationsQuery = publicationsQuery.OrderByDescending(s => s.Year); break;
+                case "Type": publicationsQuery = publicationsQuery.OrderBy(s => s.PublicationType.Name); break;
+                case "type_desc": publicationsQuery = publicationsQuery.OrderByDescending(s => s.PublicationType.Name); break;
+                default: publicationsQuery = publicationsQuery.OrderBy(s => s.Title); break;
             }
 
-            return View(await publications.ToListAsync());
+            var userId = _userManager.GetUserId(User);
+            List<Guid> wishlistIds = new List<Guid>();
+
+            if (userId != null)
+            {
+                wishlistIds = await _context.Wishlists
+                    .Where(w => w.Reader.UserId == userId)
+                    .Select(w => w.PublicationId)
+                    .ToListAsync();
+            }
+            ViewBag.WishlistIds = wishlistIds;
+            return View(await publicationsQuery.ToListAsync());
         }
 
         // GET: Publications/Details/5
