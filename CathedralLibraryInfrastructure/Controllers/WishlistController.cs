@@ -25,12 +25,13 @@ namespace CathedralLibraryInfrastructure.Controllers
             if (userId == null) return Challenge();
 
             var wishlistItems = await _context.Wishlists
-                .Include(w => w.Publication)
-                    .ThenInclude(p => p.PublicationType)
-                .Include(w => w.Publication)
-                    .ThenInclude(p => p.Authors)
-                .Where(w => w.Reader.UserId == userId)
-                .ToListAsync();
+                    .Include(w => w.Publication)
+                        .ThenInclude(p => p.Authors)
+                    .Include(w => w.Publication)
+                        .ThenInclude(p => p.Copies)
+                            .ThenInclude(c => c.Requests)
+                    .Where(w => w.Reader.UserId == userId)
+                    .ToListAsync();
 
             return View(wishlistItems);
         }

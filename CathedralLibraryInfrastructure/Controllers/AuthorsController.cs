@@ -1,9 +1,11 @@
 ﻿using CathedralLibraryDomain.Model;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {
+    [Authorize]
     public class AuthorsController : Controller
     {
         private readonly DbCathedralLibraryContext _context;

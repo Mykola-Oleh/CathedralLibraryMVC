@@ -95,6 +95,14 @@ public partial class DbCathedralLibraryContext : IdentityDbContext<User>
                     j => j.HasOne<Author>().WithMany().HasForeignKey("author_id")
                 );
         });
+        modelBuilder.Entity<Fundchange>(entity =>
+        {
+            entity.ToTable("fundchanges");
+            entity.HasOne(d => d.Publication)
+                  .WithMany(p => p.Fundchanges)
+                  .HasForeignKey(d => d.PublicationId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
 
         foreach (var entity in modelBuilder.Model.GetEntityTypes())
         {

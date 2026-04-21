@@ -1,0 +1,42 @@
+﻿@model CathedralLibraryDomain.Model.Request
+
+@{
+    ViewData["Title"] = "Оформлення запиту";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm col-md-6 mx-auto">
+        <div class="card-header bg-primary text-white">
+            <h4>📖 Оформлення запиту на книгу</h4>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title text-muted">Видання: <strong>@ViewBag.PublicationTitle</strong></h5>
+            <p class="card-text">Примірник №: @Model.Copynumber</p>
+            <hr />
+
+            <form asp-action="Create">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <input type="hidden" asp-for="PublicationId" />
+                <input type="hidden" asp-for="Copynumber" />
+                <input type="hidden" asp-for="ReaderId" />
+                <input type="hidden" asp-for="RequestDate" />
+                <input type="hidden" asp-for="StatusId" />
+
+                <div class="mb-3">
+                    <label asp-for="DueDate" class="form-label fw-bold">Планована дата повернення</label>
+                    <input asp-for="DueDate" class="form-control" type="date"
+                           min="@DateTime.Now.ToString("yyyy-MM-dd")"
+                           max="@DateTime.Now.AddMonths(2).ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="DueDate" class="text-danger"></span>
+                    <small class="text-muted">Зазвичай книга видається на 14 днів.</small>
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-controller="Publications" asp-action="Details" asp-route-id="@Model.PublicationId" class="btn btn-secondary">Скасувати</a>
+                    <button type="submit" class="btn btn-success">✅ Підтвердити запит</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

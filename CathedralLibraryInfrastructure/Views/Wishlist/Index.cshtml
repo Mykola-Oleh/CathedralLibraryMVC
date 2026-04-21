@@ -23,7 +23,35 @@
                         <div class="card-body">
                             <h5 class="card-title fw-bold">@item.Publication.Title</h5>
                             <p class="card-text text-muted small">@item.Publication.Annotation</p>
+                            @{
+                                var availableCopies = item.Publication.Copies
+                                .Where(c => !c.Requests.Any(r => r.ReturnDate == null))
+                                .ToList();
+                            }
+
+                            @if (availableCopies.Any())
+                            {
+                                <hr />
+                                <form asp-controller="Requests" asp-action="Create" method="get">
+                                    <input type="hidden" name="publicationId" value="@item.PublicationId" />
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold">Оберіть доступний примірник:</label>
+                                        <select name="copyNumber" class="form-select form-select-sm">
+                                            @foreach (var copy in availableCopies)
+                                            {
+                                                <option value="@copy.Copynumber">№ @copy.Copynumber</option>
+                                            }
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-sm btn-success w-100">✅ Замовити книгу</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <div class="badge bg-secondary w-100 mt-2">Немає вільних примірників</div>
+                            }
                         </div>
+
                         <div class="card-footer bg-white border-top-0 d-flex justify-content-between">
                             <a asp-controller="Publications" asp-action="Details" asp-route-id="@item.PublicationId" class="btn btn-sm btn-outline-primary">Детальніше</a>
 

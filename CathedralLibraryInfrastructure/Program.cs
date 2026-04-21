@@ -3,6 +3,7 @@ using CathedralLibraryInfrastructure;
 using CathedralLibraryInfrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllersWithViews();

@@ -13,10 +13,8 @@ namespace CathedralLibraryInfrastructure.Services
             _context = context;
         }
 
-        public async Task ImportFromStreamAsync(Stream stream, CancellationToken cancellationToken)
+        public async Task ImportFromStreamAsync(Stream stream, Guid adminId, CancellationToken cancellationToken)
         {
-            if (!stream.CanRead) throw new ArgumentException("Дані не можуть бути прочитані", nameof(stream));
-
             using (var workBook = new XLWorkbook(stream))
             {
                 foreach (var worksheet in workBook.Worksheets)
@@ -29,37 +27,81 @@ namespace CathedralLibraryInfrastructure.Services
                     {
                         pubType = new PublicationType { Name = typeName };
                         _context.PublicationType.Add(pubType);
+                        await _context.SaveChangesAsync(cancellationToken);
                     }
 
                     foreach (var row in worksheet.RowsUsed().Skip(1))
                     {
                         var titleCell = row.Cell(1).Value;
+                        if (titleCell.IsBlank || string.IsNullOrWhiteSpace(titleCell.ToString()))
+                        {
+                            continue;
+                        }
+                        string title = titleCell.ToString().Trim();
+
                         var yearCell = row.Cell(2).Value;
-                        if (titleCell.IsBlank) continue;
-                        if (!yearCell.IsNumber)
+                        short year = 0;
+
+                        if (yearCell.IsNumber)
+                        {
+                            year = (short)yearCell.GetNumber();
+                        }
+                        else if (yearCell.IsDateTime)
+                        {
+                            year = (short)yearCell.GetDateTime().Year;
+                        }
+                        else
+                        {
+                            string yearStr = yearCell.ToString();
+                            if (DateTime.TryParse(yearStr, out DateTime parsedDate))
+                            {
+                                year = (short)parsedDate.Year;
+                            }
+                            else if (!short.TryParse(yearStr, out year))
+                            {
+                                continue;
+                            }
+                        }
+
+                        short currentYear = (short)DateTime.Now.Year;
+                        if (year < 1000 || year > currentYear + 1)
+                        {
+                            continue;
+                        }
+                        var publication = await _context.Publications
+                            .FirstOrDefaultAsync(p => p.Title == title && p.Year == year, cancellationToken);
+
+                        if (publication != null)
                         {
                             continue;
                         }
 
-                        short year = (short)yearCell.GetNumber();
-                        string title = titleCell.ToString();
-                        if (title.Length > 255) title = title.Substring(0, 255);
-                        if (string.IsNullOrEmpty(title)) continue;
+                        string annotation = row.Cell(3).Value.IsBlank ? "" : row.Cell(3).Value.ToString();
 
-                        var publication = await _context.Publications
-                            .FirstOrDefaultAsync(p => p.Title == title, cancellationToken);
-
-                        if (publication == null)
+                        var newPublication = new Publication
                         {
-                            publication = new Publication
-                            {
-                                Title = title,
-                                Year = (short)row.Cell(2).Value.GetNumber(),
-                                Annotation = row.Cell(3).Value.ToString(),
-                                PublicationType = pubType
-                            };
-                            _context.Publications.Add(publication);
-                        }
+                            Title = title,
+                            Year = year,
+                            Annotation = annotation,
+                            PublicationTypeId = pubType.Id
+                        };
+
+                        _context.Publications.Add(newPublication);
+
+                        await _context.SaveChangesAsync(cancellationToken);
+
+                        var fundChange = new Fundchange
+                        {
+                            Id = Guid.NewGuid(),
+                            PublicationId = newPublication.Id,
+                            PublicationTitle = title,
+                            ChangeType = "Імпорт видання",
+                            Quantity = 0,
+                            ChangeDate = DateOnly.FromDateTime(DateTime.Now),
+                            ChangedByAdminId = adminId
+                        };
+
+                        _context.Fundchanges.Add(fundChange);
                     }
                 }
             }

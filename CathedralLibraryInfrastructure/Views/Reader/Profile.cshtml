@@ -1,6 +1,14 @@
 ﻿@model UserProfileViewModel
 @{
     ViewData["Title"] = "Мій профіль";
+
+    var activeBooks = Model.ActiveRequests
+        .Where(r => r.StatusId == 2 && r.ReturnDate == null)
+        .ToList();
+
+    var historyBooks = Model.ActiveRequests
+        .Where(r => r.ReturnDate != null || r.StatusId == 5)
+        .ToList();
 }
 
 <div class="container mt-4">
@@ -27,34 +35,31 @@
         </div>
 
         <div class="col-md-8">
-            <div class="card shadow-sm border-0">
-                <div class="card-header bg-white py-3">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-book me-2"></i>Мої активні книги</h5>
-                </div>
+
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header bg-white fw-bold">📖 Книги на руках</div>
                 <div class="card-body">
-                    @if (Model.ActiveRequests.Any())
+                    @if (activeBooks.Any())
                     {
                         <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
+                            <table class="table table-hover">
+                                <thead>
                                     <tr>
                                         <th>Назва</th>
-                                        <th>Дата видачі</th>
                                         <th>Термін до</th>
                                         <th>Статус</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach (var req in Model.ActiveRequests)
+                                    @foreach (var req in activeBooks)
                                     {
                                         <tr>
                                             <td>@req.Copy.Publication.Title</td>
-                                            <td>@req.RequestDate.ToShortDateString()</td>
                                             <td class="@(req.DueDate < DateTime.Now ? "text-danger fw-bold" : "")">
                                                 @req.DueDate.ToShortDateString()
                                             </td>
                                             <td>
-                                                <span class="badge bg-info">На руках</span>
+                                                <span class="badge bg-success">Видано</span>
                                             </td>
                                         </tr>
                                     }
@@ -64,13 +69,44 @@
                     }
                     else
                     {
-                        <div class="text-center py-4">
-                            <p class="text-muted">У вас поки немає активних замовлень.</p>
-                            <a asp-controller="Publications" asp-action="Index" class="btn btn-primary">Переглянути каталог</a>
-                        </div>
+                        <p class="text-muted text-center py-3">У вас зараз немає виданих книг.</p>
                     }
                 </div>
             </div>
+
+            @if (historyBooks.Any())
+            {
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-light fw-bold">📜 Історія читання (повернуті)</div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm text-muted">
+                                <thead>
+                                    <tr>
+                                        <th>Назва</th>
+                                        <th>Була у вас до</th>
+                                        <th>Повернуто</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var req in historyBooks)
+                                    {
+                                        <tr>
+                                            <td>@req.Copy.Publication.Title</td>
+                                            <td>@req.DueDate.ToShortDateString()</td>
+                                            <td>
+                                                <span class="text-success fw-bold">
+                                                    ✅ @req.ReturnDate?.ToShortDateString()
+                                                </span>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     </div>
 </div>

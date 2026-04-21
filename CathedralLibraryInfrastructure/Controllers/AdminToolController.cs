@@ -1,10 +1,12 @@
 ﻿using CathedralLibraryDomain.Model;
 using CathedralLibraryInfrastructure.ViewModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {
+    [Authorize(Roles = "admin")]
     public class AdminToolController : Controller
     {
         private readonly DbCathedralLibraryContext _context;
@@ -14,7 +16,6 @@ namespace CathedralLibraryInfrastructure.Controllers
             _context = context;
         }
 
-        // Головна сторінка з вкладками
         public async Task<IActionResult> Index(string tab = "PublicationType")
         {
             var model = new AdminToolViewModel
@@ -27,7 +28,6 @@ namespace CathedralLibraryInfrastructure.Controllers
             return View(model);
         }
 
-        // Приклад методу редагування для PublicationType
         [HttpGet]
         public async Task<IActionResult> EditPublicationType(int id)
         {
@@ -48,7 +48,6 @@ namespace CathedralLibraryInfrastructure.Controllers
             return View(item);
         }
 
-        // --- Методи для Requeststatus ---
         [HttpGet]
         public async Task<IActionResult> EditRequestStatus(int id)
         {
@@ -70,7 +69,6 @@ namespace CathedralLibraryInfrastructure.Controllers
             return View(item);
         }
 
-        // --- Методи для Copystatus ---
         [HttpGet]
         public async Task<IActionResult> EditCopyStatus(int id)
         {
@@ -92,7 +90,6 @@ namespace CathedralLibraryInfrastructure.Controllers
             return View(item);
         }
 
-        // --- Create Методи ---
 
         [HttpGet]
         public IActionResult CreatePublicationType() => View();
@@ -142,7 +139,6 @@ namespace CathedralLibraryInfrastructure.Controllers
             return View(item);
         }
 
-        // --- Видалення ---
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(int id, string type)
@@ -231,6 +227,8 @@ namespace CathedralLibraryInfrastructure.Controllers
                 foreach (var req in requestsToUpdate)
                 {
                     req.StatusId = defaultStatus.Id;
+                    req.RequestDate = DateTime.SpecifyKind(req.RequestDate, DateTimeKind.Utc);
+                    req.DueDate = DateTime.SpecifyKind(req.DueDate, DateTimeKind.Utc);
                 }
 
                 var itemToDelete = await _context.Requeststatuses.FindAsync(id);

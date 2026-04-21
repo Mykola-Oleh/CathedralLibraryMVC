@@ -1,0 +1,46 @@
+﻿@model IEnumerable<ReaderActivityViewModel>
+
+<div class="container mt-4">
+    <h2 class="mb-4">📊 Моніторинг активності читачів</h2>
+
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Читач</th>
+                        <th>Email</th>
+                        <th class="text-center">Всього книг</th>
+                        <th>Остання активність</th>
+                        <th>Рівень активності</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.FullName</td>
+                            <td>@item.Email</td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-primary">@item.TotalBooksTaken</span>
+                            </td>
+                            <td>
+                                @(item.LastRequestDate?.ToShortDateString() ?? "Ніколи не брав")
+                            </td>
+                            <td>
+                                <span class="fw-bold @item.ActivityColor">
+                                    ● @item.ActivityLevel
+                                </span>
+                            </td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.ReaderId"
+                                   class="btn btn-sm btn-outline-secondary">Деталі</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

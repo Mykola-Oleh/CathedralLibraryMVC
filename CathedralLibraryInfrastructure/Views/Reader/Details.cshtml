@@ -1,0 +1,62 @@
+﻿@model CathedralLibraryDomain.Model.Reader
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Детальна активність: @Model.FirstName @Model.LastName</h2>
+        <a asp-action="AllReaders" class="btn btn-outline-secondary">Повернутися до списку</a>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Контактна інформація</h5>
+                    <p><strong>Email:</strong> @Model.User?.Email</p>
+                    <p><strong>Факультет:</strong> @Model.Faculty</p>
+                    <p><strong>Кафедра:</strong> @Model.Department</p>
+                    <p><strong>Посада:</strong> @Model.Position</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">Історія книг</div>
+                <div class="card-body">
+                    @if (Model.Requests.Any())
+                    {
+                        <table class="table table-sm">
+                            <thead>
+                                <tr>
+                                    <th>Книга</th>
+                                    <th>Взято</th>
+                                    <th>Статус</th>
+                                    <th>Повернено</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var req in Model.Requests.OrderByDescending(r => r.RequestDate))
+                                {
+                                    <tr>
+                                        <td>@req.Copy.Publication.Title</td>
+                                        <td>@req.RequestDate.ToShortDateString()</td>
+                                        <td>
+                                            <span class="badge @(req.StatusId == 2 ? "bg-success" : "bg-secondary")">
+                                                @req.Status.StatusName
+                                            </span>
+                                        </td>
+                                        <td>@(req.ReturnDate?.ToShortDateString() ?? "—")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                    else
+                    {
+                        <p class="text-muted">Цей читач ще не брав жодної книги.</p>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,77 @@
+﻿@model IEnumerable<CathedralLibraryDomain.Model.Request>
+
+@{
+    ViewData["Title"] = "Мої запити";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Мої запити на книги</h2>
+    <div class="d-flex gap-2">
+        @if (User.IsInRole("admin"))
+        {
+            <a asp-controller="Requests" asp-action="AllRequests" class="btn btn-outline-secondary">
+                📋 Керування всіма запитами
+            </a>
+        }
+        <a asp-controller="Publications" asp-action="Index" class="btn btn-primary">
+            ➕ Створити новий запит
+        </a>
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        У вас ще немає активних або завершених запитів.
+        <a asp-controller="Publications" asp-action="Index" class="alert-link">Перегляньте каталог</a>
+    </div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-primary">
+                    <tr>
+                        <th>Книга</th>
+                        <th class="text-center">Інвентарний № </th>
+                        <th>Дата запиту</th>
+                        <th>Граничний термін </th>
+                        <th>Статус </th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="fw-bold">@item.Copy.Publication.Title</td>
+                            <td class="text-center">@item.Copynumber </td>
+                            <td>@item.RequestDate.ToShortDateString() </td>
+                            <td>@item.DueDate.ToShortDateString() </td>
+                            <td>
+                                <span class="badge @(item.StatusId == 1 ? "bg-warning text-dark" : item.StatusId == 2 ? "bg-success" : "bg-danger")">
+                                    @item.Status.StatusName
+                                </span>
+                            </td>
+                            <td>
+                                @if (item.StatusId == 2 && item.ReturnDate == null)
+                                {
+                                    <form asp-action="RequestReturn" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <button type="submit" class="btn btn-sm btn-warning">🔔 Подати заявку на повернення</button>
+                                    </form>
+                                }
+                                else if (item.StatusId == 4)
+                                {
+                                    <span class="badge bg-info text-dark">⏳ Очікує підтвердження адміном</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

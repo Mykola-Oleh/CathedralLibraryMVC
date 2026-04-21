@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {
+    [Authorize]
     public class PublicationsController : Controller
     {
         private readonly DbCathedralLibraryContext _context;
@@ -28,9 +29,11 @@ namespace CathedralLibraryInfrastructure.Controllers
         }
 
         // GET: Publications
-        [Authorize]
-        public async Task<IActionResult> Index(string sortOrder)
+ 
+        public async Task<IActionResult> Index(string sortOrder, string searchString)
         {
+            ViewBag.CurrentFilter = searchString;
+
             ViewBag.TitleSortParm = String.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewBag.YearSortParm = sortOrder == "Year" ? "year_desc" : "Year";
             ViewBag.TypeSortParm = sortOrder == "Type" ? "type_desc" : "Type";
@@ -40,6 +43,16 @@ namespace CathedralLibraryInfrastructure.Controllers
                 .Include(p => p.PublicationType)
                 .Include(p => p.Authors)
                 .AsQueryable();
+
+            if (!String.IsNullOrEmpty(searchString))
+            {
+                searchString = searchString.ToLower();
+                publicationsQuery = publicationsQuery.Where(s =>
+                    s.Title.ToLower().Contains(searchString) ||
+                    s.Authors.Any(a => a.LastName.ToLower().Contains(searchString) ||
+                                       a.FirstName.ToLower().Contains(searchString)));
+            }
+
             switch (sortOrder)
             {
                 case "name_desc": publicationsQuery = publicationsQuery.OrderByDescending(s => s.Title); break;
@@ -102,13 +115,13 @@ namespace CathedralLibraryInfrastructure.Controllers
             ViewData["PublicationTypeId"] = new SelectList(_context.PublicationType, "Id", "Name");
             ViewBag.Authors = new MultiSelectList(_context.Authors, "Id", "LastName");
             return View();
-        }
+        }       
         // POST: Publications/Create
-        [Authorize(Roles = "admin")]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Publication publication, Guid[] selectedAuthors)
         {
+            ModelState.Remove("PublicationType");
             if (ModelState.IsValid)
             {
                 if (selectedAuthors != null)
@@ -119,8 +132,24 @@ namespace CathedralLibraryInfrastructure.Controllers
                         if (author != null) publication.Authors.Add(author);
                     }
                 }
-                publication.Id = Guid.NewGuid();
+                if (publication.Id == Guid.Empty)
+                {
+                    publication.Id = Guid.NewGuid();
+                }
+
                 _context.Add(publication);
+                var fundChange = new Fundchange
+                {
+                    Id = Guid.NewGuid(),
+                    PublicationId = publication.Id,
+                    PublicationTitle = publication.Title,
+                    ChangeType = "Створення видання",
+                    Quantity = 0,
+                    ChangeDate = DateOnly.FromDateTime(DateTime.Now),
+                    ChangedByAdminId = Guid.Parse(_userManager.GetUserId(User))
+                };
+                _context.Fundchanges.Add(fundChange);
+
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -128,7 +157,6 @@ namespace CathedralLibraryInfrastructure.Controllers
             ViewBag.Years = GetYearsList(DateTime.Now.Year);
             return View(publication);
         }
-
         // GET: Publications/Edit/5
         [Authorize(Roles = "admin")]
         public async Task<IActionResult> Edit(Guid? id)
@@ -227,13 +255,27 @@ namespace CathedralLibraryInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
-            var publication = await _context.Publications.FindAsync(id);
+            var publication = await _context.Publications
+                .Include(p => p.Copies)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
             if (publication != null)
             {
-                _context.Publications.Remove(publication);
-            }
+                var fundChange = new Fundchange
+                {
+                    Id = Guid.NewGuid(),
+                    PublicationId = null,
+                    PublicationTitle = publication.Title,
+                    ChangeType = "Видалення видання",
+                    Quantity = -publication.Copies.Count,
+                    ChangeDate = DateOnly.FromDateTime(DateTime.Now),
+                    ChangedByAdminId = Guid.Parse(_userManager.GetUserId(User))
+                };
+                _context.Fundchanges.Add(fundChange);
 
-            await _context.SaveChangesAsync();
+                _context.Publications.Remove(publication);
+                await _context.SaveChangesAsync();
+            }
             return RedirectToAction(nameof(Index));
         }
 
@@ -265,17 +307,21 @@ namespace CathedralLibraryInfrastructure.Controllers
             {
                 if (fileExcel != null && fileExcel.Length > 0)
                 {
+                    var userId = _userManager.GetUserId(User);
+                    if (string.IsNullOrEmpty(userId)) return Unauthorized();
+                    Guid adminId = Guid.Parse(userId);
+
                     var importService = _factory.GetImportService(fileExcel.ContentType);
                     using (var stream = fileExcel.OpenReadStream())
                     {
-                        await importService.ImportFromStreamAsync(stream, cancellationToken);
+                        await importService.ImportFromStreamAsync(stream, adminId, cancellationToken);
                     }
                     TempData["Success"] = "Дані успішно імпортовано!";
                 }
             }
             catch (Exception ex)
             {
-                TempData["Error"] = "Помилка при імпорті: перевірте формат файлу";
+                TempData["Error"] = "Помилка при імпорті: " + ex.Message;
             }
             return RedirectToAction(nameof(Index));
         }

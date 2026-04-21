@@ -2,6 +2,6 @@
 {
     public interface IImportService<TEntity> where TEntity : class
     {
-        Task ImportFromStreamAsync(Stream stream, CancellationToken cancellationToken);
+        Task ImportFromStreamAsync(Stream stream, Guid adminId, CancellationToken cancellationToken);
     }
 }

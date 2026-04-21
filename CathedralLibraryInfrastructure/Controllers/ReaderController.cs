@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {
+    [Authorize]
     public class ReaderController : Controller
     {
         private readonly UserManager<User> _userManager;
@@ -27,22 +28,20 @@ namespace CathedralLibraryInfrastructure.Controllers
                 .Include(r => r.Requests)
                     .ThenInclude(req => req.Copy)
                         .ThenInclude(c => c.Publication)
+                .Include(r => r.Requests)
+                    .ThenInclude(req => req.Status)
                 .FirstOrDefaultAsync(r => r.UserId == userId);
 
-            if (reader == null)
-            {
-                return RedirectToAction("SetupProfile");
-            }
-
+            if (reader == null) return RedirectToAction("SetupProfile");
             var model = new UserProfileViewModel
             {
                 FullName = $"{reader.FirstName} {reader.LastName}",
-                Email = reader.User?.Email ?? "",
+                Email = reader.User?.Email,
                 Faculty = reader.Faculty,
                 Department = reader.Department,
                 Position = reader.Position,
                 Year = reader.User?.Year ?? 0,
-                ActiveRequests = reader.Requests.Where(r => r.ReturnDate == null).ToList()
+                ActiveRequests = reader.Requests.ToList()
             };
 
             return View(model);
@@ -124,6 +123,61 @@ namespace CathedralLibraryInfrastructure.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction("Profile");
+        }
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> AllReaders()
+        {
+            var readers = await _context.Readers
+                .Include(r => r.User)
+                .Include(r => r.Requests)
+                .ToListAsync();
+
+            var model = readers.Select(r =>
+            {
+                var lastReq = r.Requests.OrderByDescending(req => req.RequestDate).FirstOrDefault();
+                var total = r.Requests.Count;
+
+                string level = "Неактивний";
+                string color = "text-danger";
+
+                if (lastReq != null)
+                {
+                    var daysSinceLast = (DateTime.UtcNow - lastReq.RequestDate).TotalDays;
+
+                    if (daysSinceLast < 30) { level = "Висока"; color = "text-success"; }
+                    else if (daysSinceLast < 90) { level = "Середня"; color = "text-warning"; }
+                    else { level = "Низька"; color = "text-muted"; }
+                }
+
+                return new ReaderActivityViewModel
+                {
+                    ReaderId = r.Id,
+                    FullName = $"{r.FirstName} {r.LastName}",
+                    Email = r.User?.Email,
+                    TotalBooksTaken = total,
+                    LastRequestDate = lastReq?.RequestDate,
+                    ActivityLevel = level,
+                    ActivityColor = color
+                };
+            }).OrderByDescending(m => m.TotalBooksTaken).ToList();
+
+            return View(model);
+        }
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> Details(Guid id)
+        {
+            var reader = await _context.Readers
+                .Include(r => r.User)
+                .Include(r => r.Requests)
+                    .ThenInclude(req => req.Copy)
+                        .ThenInclude(c => c.Publication)
+                .Include(r => r.Requests)
+                    .ThenInclude(req => req.Status)
+                .FirstOrDefaultAsync(r => r.Id == id);
+
+            if (reader == null) return NotFound();
+
+            return View(reader);
         }
     }
 }

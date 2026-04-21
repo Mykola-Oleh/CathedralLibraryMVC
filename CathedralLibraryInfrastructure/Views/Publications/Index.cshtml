@@ -1,5 +1,5 @@
 ﻿@model IEnumerable<CathedralLibraryDomain.Model.Publication>
-
+@Html.AntiForgeryToken()
 @{
     ViewData["Title"] = "Видання";
     var wishlistIds = ViewBag.WishlistIds as List<Guid> ?? new List<Guid>();
@@ -28,7 +28,15 @@
         </div>
     }
 </div>
-
+<form asp-action="Index" method="get" class="form-inline mb-3">
+    <div class="input-group">
+        <input type="text" name="searchString" class="form-control"
+               placeholder="Пошук за назвою або автором..."
+               value="@ViewBag.CurrentFilter" />
+        <button type="submit" class="btn btn-primary">Пошук</button>
+        <a asp-action="Index" class="btn btn-secondary">Скинути</a>
+    </div>
+</form>
 <table class="table table-hover align-middle">
     <thead class="table-light">
         <tr>
@@ -120,7 +128,9 @@
 
                     fetch(`/Wishlist/ToggleWishlist?publicationId=${pubId}`, {
                         method: "POST",
+                        credentials: 'include',
                         headers: {
+                            "X-Requested-With": "XMLHttpRequest",
                             "RequestVerificationToken": document.querySelector('input[name="__RequestVerificationToken"]')?.value
                         }
                     })

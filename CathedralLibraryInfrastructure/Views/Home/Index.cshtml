@@ -3,6 +3,84 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4">Статистика бібліотеки</h1>
+    <hr />
 </div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <h5 class="text-center">Кількість примірників за виданням</h5>
+            <div id="copiesChart" style="height: 400px;"></div>
+        </div>
+        <div class="col-md-6">
+            <h5 class="text-center">Кількість видань за типом</h5>
+            <div id="typesChart" style="height: 400px;"></div>
+        </div>
+    </div>
+</div>
+@section Scripts {
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript">
+        google.charts.load('current', {'packages':['corechart']});
+        google.charts.setOnLoadCallback(drawLibraryCharts);
+
+        async function drawLibraryCharts() {
+            const style = getComputedStyle(document.documentElement);
+            const textCol = style.getPropertyValue('--text-color').trim() || '#333333';
+
+            const commonOptions = {
+                backgroundColor: 'transparent',
+                titleTextStyle: { color: textCol, fontSize: 18, bold: true },
+                legend: { textStyle: { color: textCol } },
+                hAxis: {
+                    textStyle: { color: textCol },
+                    baselineColor: '#555555'
+                },
+                vAxis: {
+                    textStyle: { color: textCol },
+                    gridlines: { color: 'rgba(128,128,128,0.2)' },
+                    baselineColor: '#555555'
+                },
+                chartArea: { width: '85%', height: '70%' },
+                is3D: true
+            };
+
+            const fetchData = async (url) => {
+                const res = await fetch(url);
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                return await res.json();
+            };
+
+            try {
+                const data = await fetchData('/api/charts/copiesByEdition');
+                const table = new google.visualization.DataTable();
+                table.addColumn('string', 'Видання');
+                table.addColumn('number', 'Примірники');
+                data.forEach(item => table.addRow([item.editionTitle || item.EditionTitle, item.count || item.Count]));
+
+                new google.visualization.ColumnChart(document.getElementById('copiesChart'))
+                    .draw(table, { ...commonOptions, title: 'Примірники за виданням', legend: {position: 'none'} });
+            } catch (e) { console.error("Chart 1 error:", e); }
+
+            try {
+                const data = await fetchData('/api/charts/editionsByType');
+                const table = new google.visualization.DataTable();
+                table.addColumn('string', 'Тип');
+                table.addColumn('number', 'Кількість');
+                data.forEach(item => table.addRow([item.typeName || item.TypeName, item.count || item.Count]));
+
+                new google.visualization.PieChart(document.getElementById('typesChart'))
+                    .draw(table, { ...commonOptions, title: 'Розподіл за типом' });
+            } catch (e) { console.error("Chart 2 error:", e); }
+        }
+        document.addEventListener("DOMContentLoaded", function() {
+            const themeBtn = document.getElementById("theme-toggle");
+            if (themeBtn) {
+                themeBtn.addEventListener("click", () => {
+                    setTimeout(drawLibraryCharts, 100);
+                });
+            }
+        });
+    </script>
+}

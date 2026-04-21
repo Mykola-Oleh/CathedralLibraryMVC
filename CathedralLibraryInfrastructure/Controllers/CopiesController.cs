@@ -1,17 +1,21 @@
 ﻿using CathedralLibraryDomain.Model;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace CathedralLibraryInfrastructure.Controllers
 {
     public class CopiesController : Controller
     {
         private readonly DbCathedralLibraryContext _context;
+        private readonly UserManager<User> _userManager;
 
-        public CopiesController(DbCathedralLibraryContext context)
+        public CopiesController(DbCathedralLibraryContext context, UserManager<User> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
         private bool CopyExists(Guid id, int copyNum)
         {
@@ -62,15 +66,40 @@ namespace CathedralLibraryInfrastructure.Controllers
         {
             ModelState.Remove("Publication");
             ModelState.Remove("Status");
+            bool exists = await _context.Copies.AnyAsync(c =>
+                c.PublicationId == copy.PublicationId &&
+                c.Copynumber == copy.Copynumber);
+
             if (ModelState.IsValid)
             {
-                _context.Add(copy);
-                await _context.SaveChangesAsync();
+                if (_context.Copies.Any(c => c.PublicationId == copy.PublicationId && c.Copynumber == copy.Copynumber))
+                {
+                    ModelState.AddModelError("Copynumber", "Примірник з таким номером вже існує.");
+                }
+                else
+                {
+                    _context.Add(copy);
+                    var publication = await _context.Publications.FindAsync(copy.PublicationId);
 
-                return RedirectToAction(nameof(Index), new { id = copy.PublicationId });
+                    var fundChange = new Fundchange
+                    {
+                        Id = Guid.NewGuid(),
+                        PublicationId = copy.PublicationId,
+                        PublicationTitle = publication?.Title,
+                        ChangeType = "Надходження примірника",
+                        Quantity = 1,
+                        ChangeDate = DateOnly.FromDateTime(DateTime.Now),
+                        ChangedByAdminId = Guid.Parse(_userManager.GetUserId(User))
+                    };
+                    _context.Fundchanges.Add(fundChange);
+
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index), new { id = copy.PublicationId });
+                }
             }
             ViewData["PublicationId"] = new SelectList(_context.Publications, "Id", "Title", copy.PublicationId);
-            ViewData["StatusId"] = new SelectList(_context.Copystatuses, "Id", "StatusName", copy.StatusId);
+            ViewData["StatusId"] = new SelectList(_context.Copystatuses, "Id", "Name", copy.StatusId);
+            ViewBag.PublicationId = copy.PublicationId;
             return View(copy);
         }
 
@@ -159,21 +188,37 @@ namespace CathedralLibraryInfrastructure.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(Guid PublicationId, int Copynumber)
         {
-            var copy = await _context.Copies.FindAsync(PublicationId, Copynumber);
+            var copy = await _context.Copies
+                .Include(c => c.Publication)
+                .FirstOrDefaultAsync(c => c.PublicationId == PublicationId && c.Copynumber == Copynumber);
+
             if (copy != null)
             {
+                var fundChange = new Fundchange
+                {
+                    Id = Guid.NewGuid(),
+                    PublicationId = copy.PublicationId,
+                    PublicationTitle = copy.Publication?.Title,
+                    ChangeType = "Списання примірника",
+                    Quantity = -1,
+                    ChangeDate = DateOnly.FromDateTime(DateTime.Now),
+                    ChangedByAdminId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier))
+                };
+                _context.Fundchanges.Add(fundChange);
+
                 _context.Copies.Remove(copy);
                 await _context.SaveChangesAsync();
             }
 
             return RedirectToAction(nameof(Index), new { id = PublicationId });
         }
+
         // GET: Copies/AllCopies
         public async Task<IActionResult> AllCopies()
         {
             var allCopies = await _context.Copies
-                .Include(c => c.Publication) // Тільки одна стрілочка!
-                .Include(c => c.Status)      // Тільки одна стрілочка!
+                .Include(c => c.Publication)
+                .Include(c => c.Status)
                 .ToListAsync();
 
             return View(allCopies);

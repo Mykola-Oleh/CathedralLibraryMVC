@@ -1,0 +1,81 @@
+﻿@model IEnumerable<CathedralLibraryDomain.Model.Fundchange>
+
+@{
+    ViewData["Title"] = "Журнал змін фонду";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📜 Журнал змін фонду</h1>
+        <span class="badge bg-secondary">Записів: @Model.Count()</span>
+    </div>
+
+    <table class="table table-hover mt-3">
+        <thead class="table-dark">
+            <tr>
+                <th>Дата</th>
+                <th>Видання</th>
+                <th>Тип зміни</th>
+                <th>Кількість</th>
+                <th>Адміністратор</th>
+                @if (User.IsInRole("super admin"))
+                {
+                    <th>Дії</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.ChangeDate.ToString("dd.MM.yyyy")</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.PublicationTitle))
+                        {
+                            <strong>@item.PublicationTitle</strong>
+                            @if (item.Publication == null)
+                            {
+                                <span class="badge bg-secondary ms-1" style="font-size: 0.7em;">видалено</span>
+                            }
+                        }
+                        else if (item.Publication != null)
+                        {
+                            <strong>@item.Publication.Title</strong>
+                        }
+                        else
+                        {
+                            <span class="text-muted"><em>Видання було видалено (архівний запис)</em></span>
+                        }
+                    </td>
+                    <td>
+                        @if (item.ChangeType.Contains("Надходження") || item.ChangeType.Contains("Імпорт"))
+                        {
+                            <span class="badge bg-success">➕ @item.ChangeType</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">➖ @item.ChangeType</span>
+                        }
+                    </td>
+                    <td class="fw-bold @(item.Quantity > 0 ? "text-success" : "text-danger")">
+                        @(item.Quantity > 0 ? "+" + item.Quantity : item.Quantity)
+                    </td>
+                    <td class="text-muted small">
+                        @item.ChangedByAdminId
+                    </td>
+                    @if (User.IsInRole("super admin"))
+                    {
+                        <td>
+                            <form asp-action="Delete" asp-route-id="@item.Id" method="post"
+                                  onsubmit="return confirm('Ви впевнені, що хочете видалити цей запис із історії? Це не змінить кількість книг, а лише видалить запис про операцію.');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    🗑️ Видалити
+                                </button>
+                            </form>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
